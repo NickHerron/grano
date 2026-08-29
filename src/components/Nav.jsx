@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-export default function Nav({ user, cartCount = 0, area = null }) {
+export default function Nav({ user, area = null }) {
   const path = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -17,12 +17,8 @@ export default function Nav({ user, cartCount = 0, area = null }) {
   }
 
   const links = [
-    { href: '/',            label: 'Market' },
-    { href: '/producers',   label: 'Producers' },
-    { href: '/restaurants', label: 'Restaurants' },
-    { href: '/markets',     label: 'Markets' },
-    { href: '/seasonal',    label: 'Seasonal' },
-    { href: '/group-buys',  label: 'Group Buys' },
+    { href: '/producers', label: 'Producers' },
+    { href: '/seasonal',  label: 'Seasonal' },
   ]
 
   return (
@@ -41,7 +37,7 @@ export default function Nav({ user, cartCount = 0, area = null }) {
           <input
             type="text"
             name="q"
-            placeholder="Search produce, farms, ingredients…"
+            placeholder="Search producers..."
             className="w-full bg-[#F7F5F1] border border-transparent rounded-lg py-2 pl-9 pr-4 text-sm text-soil outline-none focus:border-wheat focus:bg-white transition-colors placeholder:text-[#A09880]"
           />
         </form>
@@ -64,17 +60,9 @@ export default function Nav({ user, cartCount = 0, area = null }) {
         <div className="hidden md:flex items-center gap-2">
           {area && (
             <Link href="/locations" className="text-[13px] font-medium text-stone hover:text-soil px-2 py-1.5 whitespace-nowrap" title="Change location">
-              📍 {area.city}
+              {area.city}
             </Link>
           )}
-          <Link href="/cart" className="relative text-[13px] font-medium bg-[#F7F5F1] text-soil px-3 py-1.5 rounded-md hover:bg-[#E8E4DC] transition-colors whitespace-nowrap">
-            Cart
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-rust text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center font-mono">
-                {cartCount}
-              </span>
-            )}
-          </Link>
           {user ? (
             <>
               <Link href="/dashboard" className="text-[13px] font-medium bg-[#F7F5F1] text-soil px-3 py-1.5 rounded-md hover:bg-[#E8E4DC] transition-colors whitespace-nowrap">
@@ -91,16 +79,17 @@ export default function Nav({ user, cartCount = 0, area = null }) {
           )}
         </div>
 
-        {/* MOBILE: cart + hamburger only */}
+        {/* MOBILE: sign-in + hamburger */}
         <div className="flex md:hidden items-center gap-2 ml-auto">
-          <Link href="/cart" className="relative text-[13px] font-medium bg-[#F7F5F1] text-soil px-3 py-1.5 rounded-md whitespace-nowrap">
-            Cart
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-rust text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center font-mono">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+          {user ? (
+            <Link href="/dashboard" className="text-[13px] font-medium text-soil px-2 py-1.5 whitespace-nowrap">
+              {user.full_name?.split(' ')[0] || 'Dashboard'}
+            </Link>
+          ) : (
+            <Link href="/login" className="text-[13px] font-semibold text-rust px-2 py-1.5 whitespace-nowrap">
+              Sign In
+            </Link>
+          )}
           <button
             onClick={() => setMenuOpen(o => !o)}
             aria-label="Menu"
@@ -127,7 +116,7 @@ export default function Nav({ user, cartCount = 0, area = null }) {
             <input
               type="text"
               name="q"
-              placeholder="Search produce, farms, ingredients…"
+              placeholder="Search producers..."
               className="w-full bg-[#F7F5F1] border border-transparent rounded-lg py-2.5 pl-9 pr-4 text-sm text-soil outline-none focus:border-wheat focus:bg-white transition-colors placeholder:text-[#A09880]"
             />
           </form>
@@ -135,7 +124,7 @@ export default function Nav({ user, cartCount = 0, area = null }) {
           {area && (
             <Link href="/locations" onClick={() => setMenuOpen(false)}
               className="text-[13px] font-medium text-stone px-3 py-1.5">
-              📍 {area.city} · Change location
+              {area.city} · Change location
             </Link>
           )}
 

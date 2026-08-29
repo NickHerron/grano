@@ -15,19 +15,7 @@ export default function OurLocalNetworkSection({ network, businessName }) {
   }))
   const total = network.length
 
-  if (total === 0) {
-    return (
-      <section>
-        <div className="flex items-center gap-4 mb-6">
-          <h2 className="font-serif text-[13px] font-semibold tracking-[.15em] uppercase text-stone whitespace-nowrap">Our Local Network</h2>
-          <div className="flex-1 h-px bg-[#ECEAE4]" />
-        </div>
-        <div className="bg-linen rounded-xl p-8 text-center">
-          <p className="text-[14px] text-stone">{businessName} is building their local food network.</p>
-        </div>
-      </section>
-    )
-  }
+  if (total === 0) return null
 
   return (
     <section>

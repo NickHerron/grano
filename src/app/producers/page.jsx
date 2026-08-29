@@ -1,49 +1,47 @@
 import { createClient } from '@/lib/supabase/server'
 import ProducersDirectory from '@/components/ProducersDirectory'
+import { overlayProducerCopy } from '@/lib/producerCopy'
 
 export const metadata = {
   title: "Chicago-Area Producers | Grano",
-  description: "Discover local farms, bakeries, and food producers around Chicago — direct, local, and easy to follow.",
+  description: "Discover local farms, bakeries, and food producers around Chicago — people you can find this week.",
 }
 
 export default async function ProducersPage() {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const [{ data: realFarms }, { data: products }, { data: myFollows }] = await Promise.all([
+  const [{ data: realFarms }, { data: farmLocationRows }] = await Promise.all([
     supabase.from('farms').select('*').order('created_at', { ascending: false }),
-    supabase.from('products').select('farm_id, name, for_sale, is_available'),
-    user ? supabase.from('follows').select('farm_id').eq('follower_id', user.id) : { data: [] },
+    supabase.from('farm_locations').select('farm_id, location_type'),
   ])
 
-  const followedFarmIds = new Set((myFollows || []).map(f => f.farm_id))
-  const productsByFarm = (products || []).reduce((acc, p) => {
-    (acc[p.farm_id] = acc[p.farm_id] || []).push(p)
-    return acc
-  }, {})
+  const pickupFarmIds = new Set(
+    (farmLocationRows || [])
+      .filter(l => l.location_type === 'pickup' || l.location_type === 'farm_stand')
+      .map(l => l.farm_id)
+  )
 
   const farms = (realFarms || []).map(f => {
-    const farmProducts = productsByFarm[f.id] || []
+    const overlaid = overlayProducerCopy(f)
     return {
-      id: f.id,
-      slug: f.slug,
-      name: f.name,
-      location: f.location,
-      bio: f.bio,
-      tags: f.tags,
-      avatarBg: f.avatar_bg,
-      logoUrl: f.logo_url,
-      producerType: f.producer_type,
-      secondaryTypes: f.secondary_types || [],
-      verificationStatus: f.verification_status,
-      sellOnGrano: f.sell_on_grano,
-      practices: f.practices,
-      sellsWholesale: f.sells_wholesale,
-      buysWholesale: f.buys_wholesale,
-      isFollowing: followedFarmIds.has(f.id),
-      productCount: farmProducts.length,
-      // "Currently available" only ever means for_sale + actually available — not just
-      // "listed on the profile" (a product can exist without being for sale yet).
-      availableProducts: farmProducts.filter(p => p.for_sale && p.is_available !== false).map(p => p.name),
+      id: overlaid.id,
+      slug: overlaid.slug,
+      name: overlaid.name,
+      location: overlaid.location,
+      city: overlaid.city,
+      state: overlaid.state,
+      bio: overlaid.bio,
+      tags: overlaid.tags,
+      avatarBg: overlaid.avatar_bg,
+      logoUrl: overlaid.logo_url,
+      coverPhotoUrl: overlaid.cover_photo_url,
+      producerType: overlaid.producer_type,
+      secondaryTypes: overlaid.secondary_types || [],
+      verificationStatus: overlaid.verification_status,
+      sellOnGrano: overlaid.sell_on_grano,
+      practices: overlaid.practices,
+      sellsWholesale: overlaid.sells_wholesale,
+      buysWholesale: overlaid.buys_wholesale,
+      hasPickup: Boolean(overlaid.practices?.pickup_available || pickupFarmIds.has(overlaid.id)),
     }
   })
 
@@ -54,7 +52,7 @@ export default async function ProducersPage() {
           Chicago-Area <em className="italic text-rust">Producers</em>
         </h1>
         <p className="text-[15px] text-stone">
-          {farms.length ? `${farms.length} local farm${farms.length === 1 ? '' : 's'} and food producers — all direct, all local` : 'No producers have joined yet.'}
+          {farms.length ? `${farms.length} local producer${farms.length === 1 ? '' : 's'} you can find this week` : 'No producers have joined yet.'}
         </p>
       </div>
       <ProducersDirectory farms={farms} />

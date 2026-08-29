@@ -1,143 +1,176 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import MarketplaceClient from '@/components/MarketplaceClient'
 import HomeHero from '@/components/HomeHero'
-import { SourceLocalSection, GetDiscoveredSection } from '@/components/HomeNetworkSections'
-import MeetProducersSection from '@/components/MeetProducersSection'
-import LocalNetworkStats from '@/components/LocalNetworkStats'
-import ExploreCommunitiesSection from '@/components/ExploreCommunitiesSection'
-import { getLiveMarketplaceEnabled } from '@/lib/marketplace'
-import { resolveArea, getActiveAreas, getAreaEntities } from '@/lib/locationQueries'
+import ProducerCard from '@/components/ProducerCard'
+import HomepageNewsletter from '@/components/HomepageNewsletter'
+import { overlayProducerCopy } from '@/lib/producerCopy'
+import { seasonalWindows } from '@/data'
 
-export default async function Marketplace() {
+const SEASON_EMOJI = {
+  'Heirloom Tomatoes': '🍅',
+  'Sweet Corn': '🌽',
+  'Peppers': '🌶️',
+  'Zucchini': '🥒',
+  'Peaches': '🍑',
+  'Apples': '🍎',
+  'Grapes': '🍇',
+  'Winter Squash': '🎃',
+  'Brussels Sprouts': '🥬',
+  'Sweet Potatoes': '🍠',
+  'Asparagus': '🌱',
+  'Strawberries': '🍓',
+  'Radishes': '🥕',
+  'Snap Peas': '🫛',
+  'Ramps': '🌿',
+  'Morel Mushrooms': '🍄',
+  'Maple Syrup': '🍁',
+  'Root Vegetables': '🥕',
+  'Storage Onions': '🧅',
+  'Honey & Preserves': '🍯',
+}
+
+function inSeasonNow(windows, now = new Date()) {
+  const m = now.getMonth() + 1
+  const d = now.getDate()
+  return windows.filter(w => {
+    const afterStart = m > w.start.month || (m === w.start.month && d >= w.start.day)
+    const beforeEnd = m < w.end.month || (m === w.end.month && d <= w.end.day)
+    if (w.start.month <= w.end.month) return afterStart && beforeEnd
+    return afterStart || beforeEnd
+  })
+}
+
+function mapProducer(f, { pickupFarmIds }) {
+  const overlaid = overlayProducerCopy(f)
+  return {
+    id: overlaid.id,
+    slug: overlaid.slug,
+    name: overlaid.name,
+    location: overlaid.location,
+    city: overlaid.city,
+    state: overlaid.state,
+    bio: overlaid.bio,
+    story: overlaid.story,
+    avatarBg: overlaid.avatar_bg,
+    logoUrl: overlaid.logo_url,
+    coverPhotoUrl: overlaid.cover_photo_url,
+    producerType: overlaid.producer_type,
+    verificationStatus: overlaid.verification_status,
+    practices: overlaid.practices,
+    hasPickup: Boolean(overlaid.practices?.pickup_available || pickupFarmIds.has(overlaid.id)),
+  }
+}
+
+export default async function HomePage() {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const [
-    { data: realFarms }, { data: realProducts }, { data: allFarms }, { data: isRestaurantRole }, { data: myFollows }, { data: farmProductsRaw },
-    { data: openSourcingRequests }, { data: storyFarms }, liveMarketplaceEnabled, { data: farmLocationRows },
-    area, activeAreas,
-  ] = await Promise.all([
-    supabase.from('farms').select('*').order('created_at', { ascending: false }).limit(4),
-    // product_sources has two FKs to products (product_id, and the optional
-    // source_product_id it credits) — PostgREST can't pick one for a plain
-    // `product_sources(id)` embed, so the relationship must be named explicitly.
-    // A preorder item is deliberately allowed through even when for_sale/is_available
-    // are false — that's the normal state for something not sellable yet, and it
-    // still belongs in the regular grid (with its own Preorder badge/CTA) while the
-    // marketplace is paused. Once live, a preorder item needs for_sale like any other
-    // product — "active" preorder means actually orderable, enforced below.
-    supabase.from('products').select('*, farm:farms(name, slug, location, sell_on_grano), product_sources!product_sources_product_id_fkey(id)').or('and(for_sale.eq.true,is_available.eq.true),is_preorder.eq.true').order('created_at', { ascending: false }),
-    supabase.from('farms').select('id, name').order('name'),
-    user ? supabase.from('account_roles').select('role').eq('user_id', user.id).eq('role', 'restaurant').maybeSingle() : { data: null },
-    user ? supabase.from('follows').select('farm_id').eq('follower_id', user.id) : { data: [] },
-    supabase.from('products').select('farm_id, name, for_sale, is_available'),
-    supabase.from('sourcing_requests').select('*').eq('status', 'open').order('created_at', { ascending: false }).limit(4),
-    // "Meet the People" only makes sense for producers who've actually written a story
-    // and added a cover photo — showing an empty-bio card would undercut the section's
-    // whole point.
-    supabase.from('farms').select('slug, name, bio, location, producer_type, cover_photo_url').not('bio', 'is', null).not('cover_photo_url', 'is', null).limit(3),
-    getLiveMarketplaceEnabled(),
-    supabase.from('farm_locations').select('farm_id'),
-    resolveArea(),
-    getActiveAreas(),
+  const [{ data: realFarms }, { data: farmLocationRows }] = await Promise.all([
+    supabase.from('farms').select('*').order('created_at', { ascending: false }),
+    supabase.from('farm_locations').select('farm_id, location_type'),
   ])
 
-  // Fetched right after the main batch (not sequentially blocking it) since it needs
-  // the resolved area's value first. getActiveAreas() inside is React-cache()'d, so
-  // this doesn't re-run that query. Only fetched when an area actually resolved —
-  // there's nothing honest to show stats for otherwise.
-  const areaStats = area ? await getAreaEntities(area.state, area.citySlug) : null
-
-  const farmIdsWithLocations = new Set((farmLocationRows || []).map(l => l.farm_id))
-
-  const followedFarmIds = new Set((myFollows || []).map(f => f.farm_id))
-  const productsByFarm = (farmProductsRaw || []).reduce((acc, p) => {
-    (acc[p.farm_id] = acc[p.farm_id] || []).push(p)
-    return acc
-  }, {})
-  const newProducers = (realFarms || []).map(f => {
-    const farmProducts = productsByFarm[f.id] || []
-    return {
-      id: f.id,
-      slug: f.slug,
-      name: f.name,
-      location: f.location,
-      bio: f.bio,
-      tags: f.tags,
-      avatarBg: f.avatar_bg,
-      logoUrl: f.logo_url,
-      producerType: f.producer_type,
-      verificationStatus: f.verification_status,
-      sellOnGrano: f.sell_on_grano,
-      practices: f.practices,
-      isFollowing: followedFarmIds.has(f.id),
-      productCount: farmProducts.length,
-      availableProducts: farmProducts.filter(p => p.for_sale && p.is_available !== false).map(p => p.name),
-    }
-  })
-
-  // Normally only show products from farms that have actually turned on "Sell on
-  // Grano" — but while the site-wide switch is paused, nothing is purchasable
-  // anyway (every card falls back to "Not sold on Grano yet" + a "Find us here"
-  // link), so there's no reason to hide products just because their farm hasn't
-  // flipped that toggle on yet. Browsing/discovery should work either way.
-  const normalizedRealProducts = (realProducts || [])
-    .filter(p => liveMarketplaceEnabled ? p.farm?.sell_on_grano : true)
-    .map(p => ({
-      id: p.id,
-      slug: p.slug,
-      name: p.name,
-      price: p.price,
-      unit: p.unit,
-      unitDetail: p.unit_detail,
-      harvestedAt: p.harvested_at,
-      location: p.farm?.location || 'Chicago, IL',
-      stock: p.stock,
-      stockUnit: p.stock_unit,
-      seasonEnds: p.season_ends,
-      badge: p.badge,
-      badgeColor: p.badge_color,
-      imgBg: p.img_bg,
-      imageUrl: p.image_url,
-      category: p.category,
-      farmSlug: p.farm?.slug,
-      farmName: p.farm?.name,
-      hasFindUsLocations: farmIdsWithLocations.has(p.farm_id),
-      sourcedFromCount: p.product_sources?.length || 0,
-      isPreorder: p.is_preorder,
-      preorderNote: p.preorder_note,
-      forSale: p.for_sale,
-      isAvailable: p.is_available,
-    }))
-
-  // Preorder items sit in the regular grid alongside everything else — ProductCard
-  // itself renders the Preorder badge/CTA, no separate section. While paused, a
-  // preorder item shows regardless of for_sale (it usually isn't "for sale" yet,
-  // that's the point). Once live, "active" preorder means actually orderable, so it
-  // needs for_sale like any other product — same rule everything else already follows.
-  const marketplaceProducts = normalizedRealProducts.filter(p =>
-    liveMarketplaceEnabled ? (p.forSale && p.isAvailable) : (p.isPreorder || (p.forSale && p.isAvailable))
+  const pickupFarmIds = new Set(
+    (farmLocationRows || [])
+      .filter(l => l.location_type === 'pickup' || l.location_type === 'farm_stand')
+      .map(l => l.farm_id)
   )
+
+  const producers = (realFarms || []).map(f => mapProducer(f, { pickupFarmIds }))
+  const inSeason = inSeasonNow(seasonalWindows)
+  const featured = producers.find(f => f.story && f.coverPhotoUrl) || producers.find(f => f.story) || producers.find(f => f.coverPhotoUrl) || null
 
   return (
     <>
-      {/* The intro hero (title/tagline/Producers-Restaurants-Consumers cards) is a
-          pitch for someone not using Grano yet — a signed-in account skips straight
-          to the marketplace itself, Live Market ticker included. */}
-      {!user && <HomeHero isLoggedIn={false} area={area} />}
-      <MarketplaceClient
-        newProducers={newProducers}
-        realProducts={marketplaceProducts}
-        allFarms={allFarms || []}
-        canMessage={Boolean(isRestaurantRole)}
-        isLoggedIn={Boolean(user)}
-        liveMarketplaceEnabled={liveMarketplaceEnabled}
-        areaLabel={area ? `${area.city}-area` : 'Chicago-area'}
-      />
-      <SourceLocalSection sourcingRequests={openSourcingRequests || []} />
-      <GetDiscoveredSection />
-      <MeetProducersSection farms={storyFarms || []} />
-      {area && areaStats && <LocalNetworkStats area={area} stats={areaStats} />}
-      <ExploreCommunitiesSection areas={activeAreas || []} />
+      <HomeHero />
+
+      {inSeason.length > 0 && (
+        <section className="bg-linen border-b border-[#ECEAE4]">
+          <div className="max-w-[1100px] mx-auto px-4 sm:px-8 py-10">
+            <h2 className="font-serif text-[24px] sm:text-[28px] font-semibold text-soil mb-5">In season this week</h2>
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+              {inSeason.map(item => (
+                <Link
+                  key={item.name}
+                  href="/seasonal"
+                  className="flex-shrink-0 flex items-center gap-2 bg-white border border-[#ECEAE4] text-[13px] font-medium text-soil px-3.5 py-2 rounded-full hover:border-wheat transition-colors"
+                >
+                  <span>{SEASON_EMOJI[item.name] || '🌿'}</span>
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section id="producers" className="bg-linen scroll-mt-20">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-8 py-12 sm:py-16">
+          <div className="flex items-baseline justify-between mb-8">
+            <h2 className="font-serif text-[28px] sm:text-[34px] font-semibold text-soil">Chicago producers</h2>
+            {producers.length > 0 && (
+              <Link href="/producers" className="text-[13px] font-medium text-rust hover:underline">Browse all →</Link>
+            )}
+          </div>
+          {producers.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {producers.map(f => <ProducerCard key={f.slug} farm={f} />)}
+            </div>
+          ) : (
+            <div className="bg-white border border-[#ECEAE4] rounded-xl py-16 text-center">
+              <p className="text-[14px] text-stone mb-3">No producers listed yet.</p>
+              <Link href="/signup?as=producer" className="text-[13px] font-semibold text-rust hover:underline">Be the first →</Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {featured && (
+        <section className="bg-white">
+          <div className="max-w-[1100px] mx-auto px-4 sm:px-8 py-12 sm:py-16">
+            <Link href={`/producers/${featured.slug}`} className="group grid grid-cols-1 md:grid-cols-2 gap-0 overflow-hidden rounded-2xl border border-[#ECEAE4]">
+              <div className="h-56 md:h-auto min-h-[240px] bg-soil overflow-hidden">
+                {featured.coverPhotoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={featured.coverPhotoUrl} alt={featured.name} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+                ) : (
+                  <div className="w-full h-full bg-soil" />
+                )}
+              </div>
+              <div className="bg-linen p-8 sm:p-10 flex flex-col justify-center">
+                <div className="font-mono text-[10px] tracking-[.2em] uppercase text-wheat mb-3">Featured story</div>
+                <h3 className="font-serif text-[26px] sm:text-[30px] font-semibold text-soil leading-tight mb-3">
+                  {featured.name}
+                </h3>
+                {featured.bio && <p className="text-[15px] text-stone leading-relaxed mb-4 line-clamp-3">{featured.bio}</p>}
+                <span className="text-[14px] font-semibold text-rust group-hover:underline">Read their story →</span>
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
+
+      <section className="bg-linen border-t border-[#ECEAE4]">
+        <div className="max-w-[720px] mx-auto px-4 sm:px-8 py-14 sm:py-16 text-center">
+          <h2 className="font-serif text-[28px] sm:text-[32px] font-semibold text-soil mb-3">
+            Are you a Chicago producer?
+          </h2>
+          <p className="text-[15px] text-stone mb-6">
+            Create a profile so people can find you this week.
+          </p>
+          <Link href="/signup?as=producer" className="inline-block bg-rust text-white text-[14px] font-semibold px-6 py-3 rounded-xl hover:bg-[#A8521F] transition-colors">
+            Create your profile
+          </Link>
+        </div>
+      </section>
+
+      <section className="bg-linen pb-16 sm:pb-20">
+        <div className="max-w-[720px] mx-auto px-4 sm:px-8 text-center">
+          <h2 className="font-serif text-[28px] sm:text-[32px] font-semibold text-soil mb-2">The Grano Weekly</h2>
+          <p className="text-[15px] text-stone mb-6">
+            Stories and seasonal picks from Chicago&apos;s local food community.
+          </p>
+          <HomepageNewsletter />
+        </div>
+      </section>
     </>
   )
 }
