@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --soil: #1E1509;
+  --wheat: #C8943A;
+  --sage: #4A7A51;
+  --rust: #C0622E;
+  --stone: #6B6355;
+  --linen: #F7F5F1;
+  --mist: #F0EDE7;
+  --green-light: #EBF3EC;
+  --orange-light: #FDF0E8;
+  --yellow-light: #FBF5E6;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { background: #FAFAF8; color: var(--soil); font-family: 'DM Sans', sans-serif; }
+
+.font-serif { font-family: 'Cormorant Garamond', serif; }
+.font-mono  { font-family: 'DM Mono', monospace; }
+
+/* Banner scroll animation */
+@keyframes bannerScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-banner { animation: bannerScroll 30s linear infinite; }
+
+/* Pulse for live dot */
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .5; transform: scale(.8); }
+}
+.animate-pulse-dot { animation: livePulse 2s infinite; }

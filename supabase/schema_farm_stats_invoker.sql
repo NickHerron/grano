@@ -1,0 +1,11 @@
+-- Fixes the other Supabase Advisor "view defined with SECURITY DEFINER property"
+-- finding: public.farm_stats.
+--
+-- Unlike follow_counts (which needed the elevation on purpose — the underlying
+-- follows table is genuinely RLS-locked to each follower's own rows), farm_stats
+-- aggregates the `reviews` table, and reviews already has a fully public SELECT
+-- policy (`reviews_select_all ... using (true)` in schema_reviews.sql). So there's
+-- nothing for the view to bypass — flipping it to run as the querying user instead
+-- of its owner changes nothing about what it returns, and clears the warning outright
+-- instead of needing a function rewrite.
+alter view public.farm_stats set (security_invoker = true);

@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grano — Chicago's Digital Farmers Market</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --soil:#1E1509;--wheat:#C8943A;--cream:#FFFFFF;--sage:#4A7A51;
+  --rust:#C0622E;--stone:#6B6355;--linen:#F7F5F1;--mist:#F0EDE7;
+  --dark:#1A1208;--green-light:#EBF3EC;--orange-light:#FDF0E8;--yellow-light:#FBF5E6;
+}
+html{scroll-behavior:smooth;}
+body{background:#FAFAF8;color:var(--soil);font-family:'DM Sans',sans-serif;font-size:15px;overflow-x:hidden;cursor:none;}
+.cursor{width:10px;height:10px;background:var(--rust);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .15s,height .15s;}
+
+/* PAGE SYSTEM */
+.page{display:none;}
+.page.active{display:block;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid #ECEAE4;padding:0 32px;display:flex;align-items:center;gap:24px;height:60px;}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--soil);text-decoration:none;white-space:nowrap;cursor:none;}
+.nav-logo span{color:var(--rust);}
+.nav-search{flex:1;max-width:440px;position:relative;}
+.nav-search input{width:100%;background:var(--linen);border:1.5px solid transparent;border-radius:8px;padding:8px 16px 8px 36px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--soil);outline:none;transition:border-color .2s;}
+.nav-search input:focus{border-color:var(--wheat);background:#fff;}
+.nav-search input::placeholder{color:#A09880;}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#A09880;font-size:13px;pointer-events:none;}
+.nav-links{display:flex;gap:2px;list-style:none;margin-left:auto;}
+.nav-links a{font-size:13px;font-weight:500;color:var(--stone);text-decoration:none;padding:6px 11px;border-radius:6px;transition:background .15s,color .15s;cursor:none;white-space:nowrap;}
+.nav-links a:hover,.nav-links a.active{background:var(--linen);color:var(--soil);}
+.nav-actions{display:flex;align-items:center;gap:8px;}
+.btn-nav{font-size:13px;font-weight:500;color:var(--soil);background:var(--linen);border:none;padding:7px 13px;border-radius:7px;cursor:none;transition:background .15s;white-space:nowrap;}
+.btn-nav:hover{background:#E8E4DC;}
+.btn-nav-primary{font-size:13px;font-weight:600;color:#fff;background:var(--rust);border:none;padding:7px 15px;border-radius:7px;cursor:none;transition:background .15s;white-space:nowrap;}
+.btn-nav-primary:hover{background:#A8521F;}
+.cart-btn{position:relative;}
+.cart-count{position:absolute;top:-5px;right:-5px;background:var(--rust);color:#fff;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;}
+
+/* BANNER */
+.fresh-banner{background:var(--soil);color:#fff;padding:10px 32px;display:flex;align-items:center;gap:16px;overflow:hidden;}
+.banner-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--wheat);white-space:nowrap;display:flex;align-items:center;gap:8px;}
+.banner-label::before{content:'';width:6px;height:6px;background:var(--wheat);border-radius:50%;display:inline-block;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+.banner-scroll{display:flex;animation:bannerScroll 30s linear infinite;white-space:nowrap;}
+.banner-item{font-size:13px;color:rgba(255,255,255,.8);padding:0 28px;display:inline-flex;align-items:center;gap:28px;}
+.banner-item::after{content:'·';color:var(--wheat);}
+@keyframes bannerScroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* CATEGORY BAR */
+.category-bar{background:#fff;border-bottom:1px solid #ECEAE4;padding:0 32px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;}
+.category-bar::-webkit-scrollbar{display:none;}
+.cat-pill{font-size:13px;font-weight:500;color:var(--stone);white-space:nowrap;padding:12px 14px;border-bottom:2px solid transparent;cursor:none;transition:color .15s,border-color .15s;}
+.cat-pill:hover{color:var(--soil);}
+.cat-pill.active{color:var(--rust);border-bottom-color:var(--rust);font-weight:600;}
+
+/* LAYOUT */
+.main-layout{max-width:1280px;margin:0 auto;padding:32px 32px 80px;display:grid;grid-template-columns:1fr 296px;gap:40px;}
+.feed{}
+
+/* SECTION HEADS */
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--soil);}
+.section-title em{font-style:italic;color:var(--rust);}
+.section-sub{font-size:13px;color:var(--stone);margin-top:2px;}
+.see-all{font-size:13px;font-weight:500;color:var(--rust);text-decoration:none;cursor:none;}
+.see-all:hover{text-decoration:underline;}
+.mb-section{margin-bottom:52px;}
+
+/* PRODUCT CARDS */
+.season-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.product-card{background:#fff;border:1px solid #ECEAE4;border-radius:12px;overflow:hidden;cursor:none;transition:box-shadow .2s,transform .15s;}
+.product-card:hover{box-shadow:0 8px 28px rgba(30,21,9,.1);transform:translateY(-2px);}
+.product-img{height:150px;display:flex;align-items:center;justify-content:center;font-size:60px;position:relative;}
+.bg-green{background:var(--green-light);}.bg-orange{background:var(--orange-light);}.bg-yellow{background:var(--yellow-light);}.bg-mist{background:#EEF2F0;}.bg-pink{background:#FDF0F5;}.bg-purple{background:#F3F0FD;}.bg-red{background:#FDF0F0;}
+.badge-chip{position:absolute;top:10px;left:10px;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:4px;color:#fff;}
+.chip-green{background:var(--sage);}.chip-red{background:var(--rust);}.chip-yellow{background:var(--wheat);}
+.product-body{padding:13px 15px 15px;}
+.product-farm-link{font-size:11px;font-weight:600;color:var(--rust);text-transform:uppercase;letter-spacing:.05em;text-decoration:none;display:block;margin-bottom:3px;cursor:none;}
+.product-farm-link:hover{text-decoration:underline;}
+.product-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--soil);margin-bottom:8px;line-height:1.2;}
+.product-meta{display:flex;flex-direction:column;gap:3px;margin-bottom:12px;}
+.meta-line{font-size:12px;color:var(--stone);display:flex;align-items:center;gap:5px;}
+.meta-line.urgent{color:var(--rust);font-weight:500;}
+.meta-line.season{color:var(--sage);font-weight:500;}
+.product-footer{display:flex;justify-content:space-between;align-items:center;padding-top:11px;border-top:1px solid #F0EDE7;}
+.product-price{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;color:var(--soil);}
+.product-unit{font-size:12px;color:var(--stone);}
+.add-to-cart{background:var(--soil);color:#fff;border:none;border-radius:7px;padding:7px 13px;font-size:13px;font-weight:600;cursor:none;transition:background .15s;}
+.add-to-cart:hover{background:var(--rust);}
+.add-to-cart.added{background:var(--sage);}
+
+/* GROUP BUY */
+.group-card{background:#fff;border:1px solid #ECEAE4;border-radius:12px;padding:18px;display:grid;grid-template-columns:72px 1fr auto;gap:16px;align-items:center;cursor:none;transition:box-shadow .2s;margin-bottom:12px;}
+.group-card:hover{box-shadow:0 4px 18px rgba(30,21,9,.08);}
+.group-emoji{width:72px;height:72px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;}
+.group-info h3{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--soil);margin-bottom:2px;}
+.group-farm{font-size:12px;color:var(--rust);font-weight:600;margin-bottom:8px;}
+.progress-wrap{background:#F0EDE7;border-radius:99px;height:6px;overflow:hidden;margin-bottom:5px;}
+.progress-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--sage),#6BAF74);}
+.progress-label{font-size:12px;color:var(--stone);}
+.progress-label strong{color:var(--rust);}
+.group-action{text-align:right;flex-shrink:0;}
+.group-price{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--soil);display:block;margin-bottom:7px;}
+.group-unit{font-size:12px;color:var(--stone);}
+.btn-join{background:var(--sage);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:none;transition:background .15s;display:block;text-align:center;width:100%;}
+.btn-join:hover{background:#3D6843;}
+
+/* PRODUCERS GRID */
+.producers-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+.producer-card{background:#fff;border:1px solid #ECEAE4;border-radius:12px;padding:18px;cursor:none;transition:box-shadow .2s,transform .15s;display:flex;flex-direction:column;gap:12px;}
+.producer-card:hover{box-shadow:0 6px 22px rgba(30,21,9,.09);transform:translateY(-2px);}
+.producer-header{display:flex;gap:12px;align-items:flex-start;}
+.producer-avatar{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.producer-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--soil);margin-bottom:2px;}
+.producer-location{font-size:12px;color:var(--stone);}
+.producer-bio{font-size:13px;line-height:1.6;color:var(--stone);}
+.producer-stats{display:flex;gap:14px;}
+.pstat-val{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--soil);display:block;}
+.pstat-label{font-size:11px;color:var(--stone);}
+.producer-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.ptag{font-size:11px;font-weight:500;background:var(--linen);color:var(--stone);padding:3px 8px;border-radius:4px;}
+.producer-footer{display:flex;gap:7px;margin-top:auto;}
+.btn-follow-sm{flex:1;background:transparent;border:1.5px solid #ECEAE4;border-radius:7px;padding:7px;font-size:13px;font-weight:500;color:var(--stone);cursor:none;transition:border-color .15s,color .15s,background .15s;text-align:center;}
+.btn-follow-sm:hover{border-color:var(--rust);color:var(--rust);}
+.btn-follow-sm.following{background:var(--green-light);border-color:var(--sage);color:var(--sage);}
+.btn-shop-sm{flex:1;background:var(--linen);border:none;border-radius:7px;padding:7px;font-size:13px;font-weight:600;color:var(--soil);cursor:none;transition:background .15s;text-align:center;}
+.btn-shop-sm:hover{background:#E4E0D5;}
+
+/* TRENDING */
+.trending-list{background:#fff;border:1px solid #ECEAE4;border-radius:12px;overflow:hidden;}
+.trending-item{display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid #F0EDE7;cursor:none;transition:background .15s;}
+.trending-item:last-child{border-bottom:none;}
+.trending-item:hover{background:#FAFAF8;}
+.trend-rank{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:#D9D2C5;width:24px;text-align:center;flex-shrink:0;}
+.trend-emoji{font-size:26px;flex-shrink:0;}
+.trend-info{flex:1;}
+.trend-name{font-weight:600;font-size:14px;color:var(--soil);margin-bottom:1px;}
+.trend-farm{font-size:12px;color:var(--stone);}
+.trend-bar-wrap{width:72px;height:4px;background:#F0EDE7;border-radius:99px;overflow:hidden;}
+.trend-bar{height:100%;background:var(--wheat);border-radius:99px;}
+.trend-orders{font-size:11px;color:var(--stone);text-align:right;width:56px;}
+
+/* CALENDAR */
+.month-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border-radius:12px;overflow:hidden;border:1px solid #ECEAE4;}
+.month-cell{background:#fff;padding:14px;cursor:none;transition:background .15s;}
+.month-cell:hover{background:var(--linen);}
+.month-cell.current{background:var(--orange-light);}
+.month-name{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--stone);margin-bottom:7px;}
+.month-cell.current .month-name{color:var(--rust);font-weight:500;}
+.crop-item{font-size:12px;color:var(--soil);display:flex;align-items:center;gap:4px;margin-bottom:2px;}
+.crop-dot{width:5px;height:5px;border-radius:50%;background:var(--sage);flex-shrink:0;}
+.month-cell.current .crop-dot{background:var(--rust);}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:20px;}
+.sidebar-widget{background:#fff;border:1px solid #ECEAE4;border-radius:12px;overflow:hidden;}
+.widget-head{padding:14px 18px 11px;border-bottom:1px solid #F0EDE7;display:flex;justify-content:space-between;align-items:center;}
+.widget-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--soil);}
+.widget-badge{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--orange-light);color:var(--rust);padding:2px 7px;border-radius:4px;}
+.fresh-list{padding:6px 0;}
+.fresh-item{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:none;transition:background .15s;}
+.fresh-item:hover{background:#FAFAF8;}
+.fresh-emoji{font-size:20px;}
+.fresh-info{flex:1;}
+.fresh-name{font-size:13px;font-weight:600;color:var(--soil);}
+.fresh-farm{font-size:11px;color:var(--stone);}
+.fresh-status{font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 6px;border-radius:4px;}
+.fresh-status.new{background:var(--green-light);color:var(--sage);}
+.fresh-status.limited{background:var(--orange-light);color:var(--rust);}
+.fresh-status.peak{background:var(--yellow-light);color:#8A6B1C;}
+.followed-list{padding:6px 0;}
+.followed-item{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:none;transition:background .15s;}
+.followed-item:hover{background:#FAFAF8;}
+.followed-avatar{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.followed-name{font-size:13px;font-weight:600;color:var(--soil);margin-bottom:1px;}
+.followed-update{font-size:11px;color:var(--rust);}
+.followed-update.quiet{color:var(--stone);}
+.message-widget{padding:18px;}
+.message-prompt{font-size:14px;font-weight:600;color:var(--soil);margin-bottom:5px;}
+.message-sub{font-size:12px;color:var(--stone);line-height:1.6;margin-bottom:12px;}
+.message-input-wrap{background:var(--linen);border-radius:8px;padding:9px 11px;display:flex;gap:7px;align-items:flex-end;}
+.message-textarea{flex:1;background:transparent;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--soil);resize:none;height:44px;}
+.message-textarea::placeholder{color:#A09880;}
+.msg-send{background:var(--rust);color:#fff;border:none;border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:none;font-size:13px;flex-shrink:0;transition:background .15s;}
+.msg-send:hover{background:#A8521F;}
+.newsletter-widget{padding:18px;}
+.nl-head{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+.nl-icon{width:34px;height:34px;background:var(--yellow-light);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+.nl-title{font-size:14px;font-weight:600;color:var(--soil);}
+.nl-sub{font-size:11px;color:var(--stone);}
+.nl-desc{font-size:13px;color:var(--stone);line-height:1.6;margin-bottom:12px;}
+.nl-input{width:100%;background:var(--linen);border:1.5px solid transparent;border-radius:7px;padding:8px 11px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--soil);outline:none;margin-bottom:7px;transition:border-color .2s;}
+.nl-input:focus{border-color:var(--wheat);background:#fff;}
+.nl-input::placeholder{color:#A09880;}
+.nl-btn{width:100%;background:var(--soil);color:#fff;border:none;border-radius:7px;padding:9px;font-size:13px;font-weight:600;cursor:none;transition:background .15s;}
+.nl-btn:hover{background:var(--rust);}
+.review-list{padding:6px 0;}
+.review-item{padding:13px 18px;border-bottom:1px solid #F0EDE7;}
+.review-item:last-child{border-bottom:none;}
+.review-top{display:flex;justify-content:space-between;margin-bottom:6px;}
+.reviewer{font-size:13px;font-weight:600;color:var(--soil);}
+.review-product{font-size:11px;color:var(--stone);}
+.stars{color:var(--wheat);font-size:12px;}
+.review-text{font-size:13px;color:var(--stone);line-height:1.5;margin-bottom:9px;}
+.review-scores{display:flex;gap:8px;flex-wrap:wrap;}
+.rscore{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--stone);}
+.rscore-bar-wrap{width:28px;height:3px;background:#F0EDE7;border-radius:99px;overflow:hidden;}
+.rscore-bar{height:100%;background:var(--sage);border-radius:99px;}
+
+/* ===== PRODUCER PROFILE PAGE ===== */
+.producer-hero{position:relative;background:var(--soil);overflow:hidden;}
+.producer-hero-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:220px;opacity:.08;pointer-events:none;}
+.producer-hero-inner{max-width:1280px;margin:0 auto;padding:48px 32px 40px;position:relative;z-index:1;}
+.producer-breadcrumb{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:24px;display:flex;align-items:center;gap:6px;}
+.producer-breadcrumb a{color:rgba(255,255,255,.45);text-decoration:none;cursor:none;}
+.producer-breadcrumb a:hover{color:rgba(255,255,255,.75);}
+.producer-hero-layout{display:grid;grid-template-columns:auto 1fr auto;gap:28px;align-items:start;}
+.producer-hero-avatar{width:96px;height:96px;border-radius:16px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:52px;flex-shrink:0;border:2px solid rgba(255,255,255,.12);}
+.producer-hero-name{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:600;color:#fff;letter-spacing:-.02em;margin-bottom:6px;}
+.producer-hero-loc{font-size:14px;color:rgba(255,255,255,.55);margin-bottom:16px;display:flex;align-items:center;gap:6px;}
+.producer-hero-tags{display:flex;gap:8px;flex-wrap:wrap;}
+.hero-tag-chip{font-size:11px;font-weight:600;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);padding:4px 10px;border-radius:5px;letter-spacing:.03em;}
+.producer-hero-actions{display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
+.btn-follow-lg{background:transparent;border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:600;cursor:none;transition:background .15s,border-color .15s;white-space:nowrap;}
+.btn-follow-lg:hover,.btn-follow-lg.following{background:var(--sage);border-color:var(--sage);}
+.btn-message-lg{background:var(--rust);border:none;color:#fff;border-radius:8px;padding:10px 22px;font-size:14px;font-weight:600;cursor:none;transition:background .15s;white-space:nowrap;}
+.btn-message-lg:hover{background:#A8521F;}
+.producer-stats-bar{background:rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.08);padding:20px 32px;}
+.producer-stats-bar-inner{max-width:1280px;margin:0 auto;display:flex;gap:48px;}
+.pstat-hero{text-align:center;}
+.pstat-hero-val{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:#fff;display:block;}
+.pstat-hero-label{font-size:12px;color:rgba(255,255,255,.45);}
+
+.profile-body{max-width:1280px;margin:0 auto;padding:36px 32px 80px;display:grid;grid-template-columns:1fr 300px;gap:40px;}
+.profile-tab-bar{display:flex;gap:2px;border-bottom:1px solid #ECEAE4;margin-bottom:28px;}
+.profile-tab{font-size:14px;font-weight:500;color:var(--stone);padding:10px 16px;border-bottom:2px solid transparent;cursor:none;transition:color .15s,border-color .15s;}
+.profile-tab.active{color:var(--rust);border-bottom-color:var(--rust);font-weight:600;}
+.profile-tab:hover{color:var(--soil);}
+.story-block{background:#fff;border:1px solid #ECEAE4;border-radius:12px;padding:28px;margin-bottom:18px;}
+.story-block h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--soil);margin-bottom:12px;}
+.story-block p{font-size:14px;line-height:1.8;color:var(--stone);margin-bottom:10px;}
+.story-block p:last-child{margin-bottom:0;}
+.practices-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;}
+.practice-item{background:var(--linen);border-radius:8px;padding:14px;text-align:center;}
+.practice-icon{font-size:24px;display:block;margin-bottom:6px;}
+.practice-label{font-size:12px;font-weight:600;color:var(--soil);}
+.practice-sub{font-size:11px;color:var(--stone);}
+.profile-products-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.profile-product-card{background:#fff;border:1px solid #ECEAE4;border-radius:10px;overflow:hidden;cursor:none;transition:box-shadow .15s;}
+.profile-product-card:hover{box-shadow:0 4px 16px rgba(30,21,9,.09);}
+.ppc-img{height:110px;display:flex;align-items:center;justify-content:center;font-size:52px;}
+.ppc-body{padding:12px 14px 14px;}
+.ppc-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--soil);margin-bottom:4px;}
+.ppc-meta{font-size:12px;color:var(--stone);margin-bottom:10px;}
+.ppc-footer{display:flex;justify-content:space-between;align-items:center;}
+.ppc-price{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--soil);}
+.ppc-unit{font-size:11px;color:var(--stone);}
+.btn-ppc-add{background:var(--soil);color:#fff;border:none;border-radius:6px;padding:6px 11px;font-size:12px;font-weight:600;cursor:none;transition:background .15s;}
+.btn-ppc-add:hover{background:var(--rust);}
+.btn-ppc-add.added{background:var(--sage);}
+.profile-review-card{background:#fff;border:1px solid #ECEAE4;border-radius:10px;padding:18px;margin-bottom:10px;}
+.prc-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:10px;}
+.prc-restaurant{font-size:14px;font-weight:600;color:var(--soil);}
+.prc-date{font-size:11px;color:var(--stone);}
+.prc-product{font-size:12px;color:var(--rust);margin-bottom:8px;}
+.prc-text{font-size:13px;line-height:1.7;color:var(--stone);margin-bottom:12px;}
+.prc-scores{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.prc-score-row{display:flex;align-items:center;gap:8px;}
+.prc-score-label{font-size:11px;color:var(--stone);width:72px;flex-shrink:0;}
+.prc-score-bar-wrap{flex:1;height:4px;background:#F0EDE7;border-radius:99px;overflow:hidden;}
+.prc-score-bar{height:100%;background:var(--sage);border-radius:99px;}
+.prc-score-num{font-size:11px;font-weight:600;color:var(--soil);width:24px;text-align:right;}
+.profile-sidebar-sticky{position:sticky;top:80px;display:flex;flex-direction:column;gap:16px;}
+
+/* ===== PRODUCT PAGE ===== */
+.product-page-inner{max-width:1280px;margin:0 auto;padding:32px 32px 80px;}
+.product-breadcrumb{font-size:12px;color:var(--stone);margin-bottom:24px;display:flex;align-items:center;gap:6px;}
+.product-breadcrumb a{color:var(--stone);text-decoration:none;cursor:none;}
+.product-breadcrumb a:hover{color:var(--rust);}
+.product-page-layout{display:grid;grid-template-columns:1fr 420px;gap:48px;align-items:start;}
+.product-gallery{display:flex;flex-direction:column;gap:12px;}
+.product-main-img{background:var(--orange-light);border-radius:14px;height:380px;display:flex;align-items:center;justify-content:center;font-size:140px;position:relative;}
+.product-img-badges{position:absolute;top:16px;left:16px;display:flex;flex-direction:column;gap:6px;}
+.product-thumbs{display:flex;gap:8px;}
+.product-thumb{width:72px;height:72px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;border:2px solid transparent;cursor:none;transition:border-color .15s;}
+.product-thumb.active{border-color:var(--rust);}
+.product-thumb:hover{border-color:var(--wheat);}
+.product-info{}
+.product-page-farm{display:flex;align-items:center;gap:10px;margin-bottom:12px;cursor:none;}
+.product-page-farm-avatar{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.product-page-farm-name{font-size:13px;font-weight:600;color:var(--rust);}
+.product-page-farm-loc{font-size:11px;color:var(--stone);}
+.product-page-name{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:600;letter-spacing:-.02em;color:var(--soil);line-height:1.1;margin-bottom:14px;}
+.product-page-vitals{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:20px;}
+.vital-card{background:var(--linen);border-radius:8px;padding:12px 14px;}
+.vital-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--stone);margin-bottom:3px;}
+.vital-value{font-size:14px;font-weight:600;color:var(--soil);}
+.vital-value.urgent{color:var(--rust);}
+.vital-value.season{color:var(--sage);}
+.product-price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;}
+.product-page-price{font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:600;color:var(--soil);}
+.product-page-unit{font-size:16px;color:var(--stone);}
+.product-price-note{font-size:13px;color:var(--stone);margin-bottom:20px;}
+.qty-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.qty-label{font-size:13px;font-weight:500;color:var(--stone);}
+.qty-control{display:flex;align-items:center;gap:0;border:1.5px solid #ECEAE4;border-radius:8px;overflow:hidden;}
+.qty-btn{width:36px;height:36px;border:none;background:#fff;font-size:18px;cursor:none;color:var(--soil);transition:background .15s;font-weight:300;}
+.qty-btn:hover{background:var(--linen);}
+.qty-val{width:44px;text-align:center;font-size:15px;font-weight:600;color:var(--soil);border:none;background:#fff;outline:none;font-family:'DM Sans',sans-serif;}
+.btn-add-full{width:100%;background:var(--rust);color:#fff;border:none;border-radius:9px;padding:14px;font-size:15px;font-weight:700;cursor:none;transition:background .15s;margin-bottom:8px;}
+.btn-add-full:hover{background:#A8521F;}
+.btn-add-full.added{background:var(--sage);}
+.btn-follow-product{width:100%;background:transparent;border:1.5px solid #ECEAE4;color:var(--soil);border-radius:9px;padding:13px;font-size:14px;font-weight:500;cursor:none;transition:border-color .15s,color .15s;margin-bottom:20px;}
+.btn-follow-product:hover{border-color:var(--rust);color:var(--rust);}
+.product-delivery-info{background:var(--green-light);border-radius:10px;padding:14px 16px;display:flex;gap:10px;margin-bottom:20px;}
+.delivery-icon{font-size:20px;flex-shrink:0;}
+.delivery-text{font-size:13px;color:var(--sage);line-height:1.6;}
+.delivery-text strong{color:#2A5E30;}
+.product-desc-block{margin-bottom:20px;}
+.product-desc-block h4{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--soil);margin-bottom:8px;}
+.product-desc-block p{font-size:14px;line-height:1.8;color:var(--stone);}
+.product-extras{display:flex;flex-direction:column;gap:10px;}
+.product-extra-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--stone);}
+.product-extra-icon{font-size:18px;width:24px;text-align:center;}
+
+/* ===== CART PAGE ===== */
+.cart-page-inner{max-width:900px;margin:0 auto;padding:36px 32px 80px;}
+.cart-page-title{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:600;color:var(--soil);margin-bottom:6px;}
+.cart-page-sub{font-size:14px;color:var(--stone);margin-bottom:32px;}
+.cart-layout{display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start;}
+.cart-items{display:flex;flex-direction:column;gap:10px;}
+.cart-item{background:#fff;border:1px solid #ECEAE4;border-radius:12px;padding:16px 18px;display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;}
+.cart-item-emoji{width:56px;height:56px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+.cart-item-info{}
+.cart-item-farm{font-size:11px;font-weight:600;color:var(--rust);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+.cart-item-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--soil);margin-bottom:4px;}
+.cart-item-meta{font-size:12px;color:var(--stone);}
+.cart-item-right{text-align:right;}
+.cart-item-price{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--soil);margin-bottom:8px;}
+.cart-qty-control{display:flex;align-items:center;gap:0;border:1.5px solid #ECEAE4;border-radius:7px;overflow:hidden;margin-bottom:6px;}
+.cqb{width:28px;height:28px;border:none;background:#fff;font-size:15px;cursor:none;color:var(--soil);transition:background .15s;}
+.cqb:hover{background:var(--linen);}
+.cqv{width:32px;text-align:center;font-size:13px;font-weight:600;color:var(--soil);}
+.cart-remove{font-size:11px;color:#C0A090;cursor:none;background:none;border:none;transition:color .15s;}
+.cart-remove:hover{color:var(--rust);}
+.cart-farm-divider{font-size:11px;font-weight:600;color:var(--stone);text-transform:uppercase;letter-spacing:.1em;padding:8px 0 4px;display:flex;align-items:center;gap:8px;}
+.cart-farm-divider::after{content:'';flex:1;height:1px;background:#ECEAE4;}
+.cart-summary{background:#fff;border:1px solid #ECEAE4;border-radius:12px;padding:22px;position:sticky;top:80px;}
+.summary-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--soil);margin-bottom:18px;}
+.summary-row{display:flex;justify-content:space-between;font-size:14px;color:var(--stone);margin-bottom:10px;}
+.summary-row.total{font-size:16px;font-weight:700;color:var(--soil);border-top:1px solid #ECEAE4;padding-top:12px;margin-top:4px;}
+.summary-row strong{color:var(--soil);}
+.summary-delivery-note{background:var(--green-light);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--sage);margin-bottom:16px;line-height:1.6;}
+.btn-checkout{width:100%;background:var(--rust);color:#fff;border:none;border-radius:9px;padding:14px;font-size:15px;font-weight:700;cursor:none;transition:background .15s;margin-bottom:10px;}
+.btn-checkout:hover{background:#A8521F;}
+.btn-continue{width:100%;background:transparent;border:1.5px solid #ECEAE4;color:var(--soil);border-radius:9px;padding:12px;font-size:14px;cursor:none;transition:border-color .15s;}
+.btn-continue:hover{border-color:var(--soil);}
+.cart-empty{text-align:center;padding:80px 32px;}
+.cart-empty-icon{font-size:64px;margin-bottom:16px;}
+.cart-empty-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--soil);margin-bottom:8px;}
+.cart-empty-sub{font-size:14px;color:var(--stone);margin-bottom:24px;}
+
+/* ===== NEWSLETTER PAGE ===== */
+.newsletter-page{background:var(--soil);min-height:100vh;padding:64px 32px;}
+.newsletter-inner{max-width:640px;margin:0 auto;}
+.nl-page-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--wheat);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+.nl-page-label::before{content:'';width:28px;height:1px;background:var(--wheat);}
+.nl-page-title{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,6vw,72px);font-weight:300;color:#fff;letter-spacing:-.03em;line-height:1.05;margin-bottom:20px;}
+.nl-page-title em{font-style:italic;color:var(--wheat);}
+.nl-page-sub{font-size:16px;font-weight:300;color:rgba(255,255,255,.55);line-height:1.7;margin-bottom:48px;}
+.nl-preview-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:28px;margin-bottom:48px;}
+.nl-preview-head{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.08);}
+.nl-preview-icon{font-size:24px;}
+.nl-preview-from{font-size:13px;font-weight:600;color:rgba(255,255,255,.7);}
+.nl-preview-date{font-size:12px;color:rgba(255,255,255,.3);}
+.nl-preview-subject{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:#fff;margin-bottom:20px;letter-spacing:-.01em;}
+.nl-preview-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.nl-preview-item:last-child{border-bottom:none;}
+.nl-item-emoji{font-size:22px;flex-shrink:0;}
+.nl-item-name{font-size:14px;font-weight:600;color:rgba(255,255,255,.85);}
+.nl-item-detail{font-size:12px;color:rgba(255,255,255,.4);}
+.nl-item-badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:4px;margin-left:auto;flex-shrink:0;}
+.nl-badge-new{background:rgba(74,122,81,.3);color:#7EC985;}
+.nl-badge-peak{background:rgba(200,148,58,.2);color:var(--wheat);}
+.nl-badge-low{background:rgba(192,98,46,.25);color:#E08060;}
+.nl-form{display:flex;flex-direction:column;gap:12px;}
+.nl-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.nl-field{display:flex;flex-direction:column;gap:6px;}
+.nl-field label{font-size:12px;font-weight:600;letter-spacing:.04em;color:rgba(255,255,255,.45);text-transform:uppercase;}
+.nl-field input,.nl-field select{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:8px;padding:11px 14px;font-family:'DM Sans',sans-serif;font-size:14px;color:#fff;outline:none;transition:border-color .2s;}
+.nl-field input:focus,.nl-field select:focus{border-color:var(--wheat);}
+.nl-field input::placeholder{color:rgba(255,255,255,.25);}
+.nl-field select option{background:var(--soil);color:#fff;}
+.nl-checkboxes{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:4px;}
+.nl-check-label{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.6);cursor:none;}
+.nl-check-label input[type=checkbox]{width:15px;height:15px;accent-color:var(--wheat);cursor:none;}
+.btn-nl-submit{background:var(--wheat);color:var(--soil);border:none;border-radius:9px;padding:15px;font-size:15px;font-weight:700;cursor:none;transition:background .15s;}
+.btn-nl-submit:hover{background:#DAA445;}
+.nl-fine-print{font-size:12px;color:rgba(255,255,255,.25);text-align:center;line-height:1.6;}
+
+/* FOOTER */
+footer{background:var(--soil);padding:48px 32px 32px;}
+.footer-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:40px;}
+.footer-logo{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:#fff;margin-bottom:9px;}
+.footer-logo span{color:var(--wheat);}
+.footer-tagline{font-size:13px;font-style:italic;color:rgba(255,255,255,.35);line-height:1.7;max-width:240px;margin-bottom:16px;}
+.footer-col h4{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--wheat);margin-bottom:14px;}
+.footer-col ul{list-style:none;}
+.footer-col ul li{margin-bottom:8px;}
+.footer-col ul a{font-size:13px;color:rgba(255,255,255,.42);text-decoration:none;transition:color .15s;cursor:none;}
+.footer-col ul a:hover{color:rgba(255,255,255,.85);}
+.footer-bottom{max-width:1280px;margin:0 auto;border-top:1px solid rgba(255,255,255,.07);padding-top:22px;display:flex;justify-content:space-between;align-items:center;}
+.footer-bottom p{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;color:rgba(255,255,255,.22);}
+
+/* UTILS */
+.btn{cursor:none;}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- ========== NAV ========== -->
+<nav id="main-nav">
+  <a class="nav-logo btn" onclick="showPage('marketplace')">grano<span>.</span></a>
+  <div class="nav-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="Search produce, farms, ingredients…">
+  </div>
+  <ul class="nav-links">
+    <li><a class="btn" id="nav-marketplace" onclick="showPage('marketplace')">Market</a></li>
+    <li><a class="btn" id="nav-producer" onclick="showPage('producer')">Producers</a></li>
+    <li><a class="btn" id="nav-product" onclick="showPage('product')">Seasonal</a></li>
+    <li><a class="btn" id="nav-newsletter" onclick="showPage('newsletter')">Newsletter</a></li>
+  </ul>
+  <div class="nav-actions">
+    <button class="btn-nav btn" onclick="showPage('producer')">My Farms</button>
+    <button class="btn-nav cart-btn btn" onclick="showPage('cart')">
+      🛒 Cart
+      <span class="cart-count" id="cart-count">3</span>
+    </button>
+    <button class="btn-nav-primary btn">Sign In</button>
+  </div>
+</nav>
+
+<!-- ========== PAGE: MARKETPLACE ========== -->
+<div class="page active" id="page-marketplace">
+  <div class="fresh-banner">
+    <div class="banner-label">Live Market</div>
+    <div style="overflow:hidden;flex:1;">
+      <div class="banner-scroll">
+        <span class="banner-item">First Illinois strawberries of the season — Smith Family Farm</span>
+        <span class="banner-item">Fresh morels just added — Great Lakes Fungi</span>
+        <span class="banner-item">Local asparagus is back — Flatlands Market Garden</span>
+        <span class="banner-item">New: stone-milled rye flour — Prairie Wind Farm</span>
+        <span class="banner-item">Michigan cherries arriving Thursday — Galena Ridge</span>
+        <span class="banner-item">First Illinois strawberries of the season — Smith Family Farm</span>
+        <span class="banner-item">Fresh morels just added — Great Lakes Fungi</span>
+        <span class="banner-item">Local asparagus is back — Flatlands Market Garden</span>
+        <span class="banner-item">New: stone-milled rye flour — Prairie Wind Farm</span>
+        <span class="banner-item">Michigan cherries arriving Thursday — Galena Ridge</span>
+      </div>
+    </div>
+  </div>
+  <div class="category-bar">
+    <div class="cat-pill active btn">🌿 All</div>
+    <div class="cat-pill btn">🍅 Vegetables</div>
+    <div class="cat-pill btn">🍓 Fruit</div>
+    <div class="cat-pill btn">🌾 Grains & Flour</div>
+    <div class="cat-pill btn">🧀 Dairy & Eggs</div>
+    <div class="cat-pill btn">🍄 Mushrooms</div>
+    <div class="cat-pill btn">🍯 Honey & Preserves</div>
+    <div class="cat-pill btn">🥩 Meat & Poultry</div>
+    <div class="cat-pill btn">🫙 Ferments & Pantry</div>
+    <div class="cat-pill btn">🌸 Flowers & Herbs</div>
+  </div>
+
+  <div class="main-layout">
+    <div class="feed">
+
+      <!-- IN SEASON -->
+      <section class="mb-section">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">In Season <em>This Week</em></h2>
+            <p class="section-sub">Harvested within 48 hours — updated every Monday morning</p>
+          </div>
+          <a class="see-all btn">See all 34 →</a>
+        </div>
+        <div class="season-grid">
+          <div class="product-card btn" onclick="showPage('product')">
+            <div class="product-img bg-pink"><span>🍓</span><span class="badge-chip chip-green">Picked Yesterday</span></div>
+            <div class="product-body">
+              <a class="product-farm-link btn" onclick="event.stopPropagation();showPage('producer')">📍 Smith Family Farm</a>
+              <div class="product-name">Illinois Strawberries</div>
+              <div class="product-meta">
+                <div class="meta-line">📏 18 miles from Chicago</div>
+                <div class="meta-line urgent">⚡ Only 8 flats remaining</div>
+                <div class="meta-line season">🗓 Peak season ends in 3 weeks</div>
+              </div>
+              <div class="product-footer">
+                <div><span class="product-price">$28</span><span class="product-unit"> / flat</span></div>
+                <button class="add-to-cart btn" onclick="event.stopPropagation();addToCart(this)">+ Add</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card btn" onclick="showPage('product')">
+            <div class="product-img bg-green"><span>🍃</span><span class="badge-chip chip-green">Harvested Today</span></div>
+            <div class="product-body">
+              <a class="product-farm-link btn" onclick="event.stopPropagation();showPage('producer')">📍 Flatlands Market Garden</a>
+              <div class="product-name">Wild Arugula</div>
+              <div class="product-meta">
+                <div class="meta-line">📏 34 miles from Chicago</div>
+                <div class="meta-line">🌿 Certified organic</div>
+                <div class="meta-line season">🗓 Available through October</div>
+              </div>
+              <div class="product-footer">
+                <div><span class="product-price">$4.50</span><span class="product-unit"> / lb</span></div>
+                <button class="add-to-cart btn" onclick="event.stopPropagation();addToCart(this)">+ Add</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card btn" onclick="showPage('product')">
+            <div class="product-img bg-mist"><span>🍄</span><span class="badge-chip chip-yellow">New Variety</span></div>
+            <div class="product-body">
+              <a class="product-farm-link btn" onclick="event.stopPropagation();showPage('producer')">📍 Great Lakes Fungi</a>
+              <div class="product-name">Black Pearl Oyster</div>
+              <div class="product-meta">
+                <div class="meta-line">📍 Evanston, IL</div>
+                <div class="meta-line urgent">⚡ First harvest — limited stock</div>
+                <div class="meta-line">🍽 Used by 14 Chicago chefs</div>
+              </div>
+              <div class="product-footer">
+                <div><span class="product-price">$12</span><span class="product-unit"> / lb</span></div>
+                <button class="add-to-cart btn" onclick="event.stopPropagation();addToCart(this)">+ Add</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card btn" onclick="showPage('product')">
+            <div class="product-img bg-orange"><span>🌾</span><span class="badge-chip chip-green">Milled This Week</span></div>
+            <div class="product-body">
+              <a class="product-farm-link btn" onclick="event.stopPropagation();showPage('producer')">📍 Janie's Mill</a>
+              <div class="product-name">Red Fife Wheat Flour</div>
+              <div class="product-meta">
+                <div class="meta-line">📏 Ashkum, IL — 80 miles away</div>
+                <div class="meta-line">🌾 Heritage grain, stone-milled</div>
+                <div class="meta-line season">🗓 Year-round availability</div>
+              </div>
+              <div class="product-footer">
+                <div><span class="product-price">$7.50</span><span class="product-unit"> / 3 lbs</span></div>
+                <button class="add-to-cart btn" onclick="event.stopPropagation();addToCart(this)">+ Add</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card btn" onclick="showPage('product')">
+            <div class="product-img bg-yellow"><span>🍯</span><span class="badge-chip chip-green">Raw &amp; Unfiltered</span></div>
+            <div class="product-body">
+              <a class="product-farm-link btn" onclick="event.stopPropagation();showPage('producer')">📍 North Shore Apiaries</a>
+              <div class="product-name">Clover Blossom Honey</div>
+              <div class="product-meta">
+                <div class="meta-line">📍 Waukegan, IL</div>
+                <div class="meta-line">🐝 Single-origin, spring harvest</div>
+                <div class="meta-line urgent">⚡ 23 jars left from this batch</div>
+              </div>
+              <div class="product-footer">
+                <div><span class="product-price">$11</span><span class="product-unit"> / 12 oz</span></div>
+                <button class="add-to-cart btn" onclick="event.stopPropagation();addToCart(this)">+ Add</button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card btn" onclick="showPage('product')">
+            <div class="product-img bg-green"><span>🥬</span><span class="badge-chip chip-red">Back In Season</span></div>
+            <div class="product-body">
+              <a class="product-farm-link btn" onclick="event.stopPropagation();showPage('producer')">📍 Flatlands Market Garden</a>
+              <div class="product-name">Asparagus</div>
+              <div class="product-meta">
+                <div class="meta-line">📏 34 miles from Chicago</div>
+                <div class="meta-line urgent">⚡ Back for first time this year</div>
+                <div class="meta-line season">🗓 Only 4–6 weeks in season</div>
+              </div>
+              <div class="product-footer">
+                <div><span class="product-price">$6</span><span class="product-unit"> / lb</span></div>
+                <button class="add-to-cart btn" onclick="event.stopPropagation();addToCart(this)">+ Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GROUP BUYS -->
+      <section class="mb-section">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Group <em>Buys</em></h2>
+            <p class="section-sub">Team up with other restaurants to unlock farm minimums — and better prices</p>
+          </div>
+          <a class="see-all btn">See all →</a>
+        </div>
+        <div class="group-card btn">
+          <div class="group-emoji" style="background:var(--orange-light);">🫐</div>
+          <div class="group-info">
+            <h3>Michigan Blueberries</h3>
+            <div class="group-farm">Galena Ridge Orchards · Galena, IL</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:72%"></div></div>
+            <div class="progress-label">36 of 50 cases claimed — <strong>14 more needed to unlock</strong></div>
+          </div>
+          <div class="group-action">
+            <span class="group-price">$48 <span class="group-unit">/ case</span></span>
+            <button class="btn-join btn" onclick="event.stopPropagation();addToCart(this,'join')">Join Buy</button>
+          </div>
+        </div>
+        <div class="group-card btn">
+          <div class="group-emoji" style="background:var(--green-light);">🥬</div>
+          <div class="group-info">
+            <h3>Mixed Salad Greens</h3>
+            <div class="group-farm">Flatlands Market Garden · Joliet, IL</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:44%"></div></div>
+            <div class="progress-label">11 of 25 cases claimed — <strong>14 more needed to unlock</strong></div>
+          </div>
+          <div class="group-action">
+            <span class="group-price">$32 <span class="group-unit">/ case</span></span>
+            <button class="btn-join btn" onclick="event.stopPropagation();addToCart(this,'join')">Join Buy</button>
+          </div>
+        </div>
+        <div class="group-card btn">
+          <div class="group-emoji" style="background:#FDF0F5;">🍅</div>
+          <div class="group-info">
+            <h3>Heirloom Tomatoes (Case)</h3>
+            <div class="group-farm">Smith Family Farm · Elgin, IL</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:90%"></div></div>
+            <div class="progress-label">45 of 50 cases claimed — <strong>5 cases remaining!</strong></div>
+          </div>
+          <div class="group-action">
+            <span class="group-price">$35 <span class="group-unit">/ case</span></span>
+            <button class="btn-join btn" style="background:var(--rust);" onclick="event.stopPropagation();addToCart(this,'join')">Almost Full!</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- NEW PRODUCERS -->
+      <section class="mb-section">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">New <em>Producers</em></h2>
+            <p class="section-sub">Just joined — follow them to get notified when they add products</p>
+          </div>
+          <a class="see-all btn" onclick="showPage('producer')">Browse all 84 →</a>
+        </div>
+        <div class="producers-grid">
+          <div class="producer-card btn" onclick="showPage('producer')">
+            <div class="producer-header">
+              <div class="producer-avatar" style="background:var(--yellow-light);">🫙</div>
+              <div><div class="producer-name">Little Village Tortilla Co.</div><div class="producer-location">📍 Little Village, Chicago</div></div>
+            </div>
+            <div class="producer-bio">Family-run tortilleria making fresh corn tortillas daily using heirloom blue and yellow masa. Supplies 11 Chicago restaurants.</div>
+            <div class="producer-stats">
+              <div><span class="pstat-val">11</span><span class="pstat-label">Restaurants</span></div>
+              <div><span class="pstat-val">4.9★</span><span class="pstat-label">Rating</span></div>
+              <div><span class="pstat-val">Daily</span><span class="pstat-label">Fresh batches</span></div>
+            </div>
+            <div class="producer-tags"><span class="ptag">Tortillas</span><span class="ptag">Masa</span><span class="ptag">Tamales</span></div>
+            <div class="producer-footer">
+              <button class="btn-follow-sm btn" onclick="event.stopPropagation();toggleFollow(this)">+ Follow</button>
+              <button class="btn-shop-sm btn" onclick="event.stopPropagation();showPage('producer')">View Shop →</button>
+            </div>
+          </div>
+          <div class="producer-card btn" onclick="showPage('producer')">
+            <div class="producer-header">
+              <div class="producer-avatar" style="background:#EEF2F0;">🍄</div>
+              <div><div class="producer-name">Southside Mushroom Co.</div><div class="producer-location">📍 Bridgeport, Chicago</div></div>
+            </div>
+            <div class="producer-bio">Urban mushroom farm growing 8 specialty varieties in a former meatpacking facility. 24-hour harvest-to-door guarantee.</div>
+            <div class="producer-stats">
+              <div><span class="pstat-val">8</span><span class="pstat-label">Varieties</span></div>
+              <div><span class="pstat-val">4.8★</span><span class="pstat-label">Rating</span></div>
+              <div><span class="pstat-val">24h</span><span class="pstat-label">Turnaround</span></div>
+            </div>
+            <div class="producer-tags"><span class="ptag">Shiitake</span><span class="ptag">Lion's Mane</span><span class="ptag">Oyster</span></div>
+            <div class="producer-footer">
+              <button class="btn-follow-sm btn" onclick="event.stopPropagation();toggleFollow(this)">+ Follow</button>
+              <button class="btn-shop-sm btn" onclick="event.stopPropagation();showPage('producer')">View Shop →</button>
+            </div>
+          </div>
+          <div class="producer-card btn" onclick="showPage('producer')">
+            <div class="producer-header">
+              <div class="producer-avatar" style="background:var(--orange-light);">🌾</div>
+              <div><div class="producer-name">Janie's Mill</div><div class="producer-location">📍 Ashkum, IL · 80 miles</div></div>
+            </div>
+            <div class="producer-bio">Fourth-generation Illinois grain farm. Stone-milled heritage flours. Supplies 23 Chicago restaurants and bakeries.</div>
+            <div class="producer-stats">
+              <div><span class="pstat-val">23</span><span class="pstat-label">Restaurants</span></div>
+              <div><span class="pstat-val">5.0★</span><span class="pstat-label">Rating</span></div>
+              <div><span class="pstat-val">12</span><span class="pstat-label">Flour types</span></div>
+            </div>
+            <div class="producer-tags"><span class="ptag">Heritage grain</span><span class="ptag">Stone-milled</span><span class="ptag">Organic</span></div>
+            <div class="producer-footer">
+              <button class="btn-follow-sm following btn" onclick="event.stopPropagation();toggleFollow(this)">✓ Following</button>
+              <button class="btn-shop-sm btn" onclick="event.stopPropagation();showPage('producer')">View Shop →</button>
+            </div>
+          </div>
+          <div class="producer-card btn" onclick="showPage('producer')">
+            <div class="producer-header">
+              <div class="producer-avatar" style="background:#FDF0F5;">🐓</div>
+              <div><div class="producer-name">Two Bears Farm</div><div class="producer-location">📍 Woodstock, IL · 55 miles</div></div>
+            </div>
+            <div class="producer-bio">Pasture-raised eggs and heritage-breed chickens on 40 acres. Free-range, soy-free feed, no antibiotics ever.</div>
+            <div class="producer-stats">
+              <div><span class="pstat-val">17</span><span class="pstat-label">Restaurants</span></div>
+              <div><span class="pstat-val">4.9★</span><span class="pstat-label">Rating</span></div>
+              <div><span class="pstat-val">Tue/Fri</span><span class="pstat-label">Delivery</span></div>
+            </div>
+            <div class="producer-tags"><span class="ptag">Pasture-raised</span><span class="ptag">Eggs</span><span class="ptag">Poultry</span></div>
+            <div class="producer-footer">
+              <button class="btn-follow-sm btn" onclick="event.stopPropagation();toggleFollow(this)">+ Follow</button>
+              <button class="btn-shop-sm btn" onclick="event.stopPropagation();showPage('producer')">View Shop →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CHEF FAVORITES -->
+      <section class="mb-section">
+        <div class="section-head">
+          <div><h2 class="section-title">Chef <em>Favorites</em></h2><p class="section-sub">Most ordered by Chicago restaurants this week</p></div>
+          <a class="see-all btn">Full ranking →</a>
+        </div>
+        <div class="trending-list">
+          <div class="trending-item btn" onclick="showPage('product')"><div class="trend-rank">1</div><div class="trend-emoji">🍓</div><div class="trend-info"><div class="trend-name">Illinois Strawberries</div><div class="trend-farm">Smith Family Farm</div></div><div class="trend-bar-wrap"><div class="trend-bar" style="width:100%"></div></div><div class="trend-orders">142 orders</div></div>
+          <div class="trending-item btn" onclick="showPage('product')"><div class="trend-rank">2</div><div class="trend-emoji">🍄</div><div class="trend-info"><div class="trend-name">Lion's Mane Mushrooms</div><div class="trend-farm">Southside Mushroom Co.</div></div><div class="trend-bar-wrap"><div class="trend-bar" style="width:82%"></div></div><div class="trend-orders">116 orders</div></div>
+          <div class="trending-item btn" onclick="showPage('product')"><div class="trend-rank">3</div><div class="trend-emoji">🥚</div><div class="trend-info"><div class="trend-name">Pasture-Raised Eggs</div><div class="trend-farm">Two Bears Farm</div></div><div class="trend-bar-wrap"><div class="trend-bar" style="width:68%"></div></div><div class="trend-orders">96 orders</div></div>
+          <div class="trending-item btn" onclick="showPage('product')"><div class="trend-rank">4</div><div class="trend-emoji">🌾</div><div class="trend-info"><div class="trend-name">Einkorn Flour</div><div class="trend-farm">Janie's Mill</div></div><div class="trend-bar-wrap"><div class="trend-bar" style="width:55%"></div></div><div class="trend-orders">78 orders</div></div>
+          <div class="trending-item btn" onclick="showPage('product')"><div class="trend-rank">5</div><div class="trend-emoji">🫙</div><div class="trend-info"><div class="trend-name">Blue Corn Tortillas</div><div class="trend-farm">Little Village Tortilla Co.</div></div><div class="trend-bar-wrap"><div class="trend-bar" style="width:48%"></div></div><div class="trend-orders">68 orders</div></div>
+        </div>
+      </section>
+
+      <!-- SEASONAL CALENDAR -->
+      <section class="mb-section">
+        <div class="section-head">
+          <div><h2 class="section-title">Illinois <em>Seasonal Calendar</em></h2><p class="section-sub">Plan your menu around what's coming — build dishes before ingredients arrive</p></div>
+        </div>
+        <div class="month-grid">
+          <div class="month-cell"><div class="month-name">January</div><div class="crop-item"><div class="crop-dot"></div>Root vegetables</div><div class="crop-item"><div class="crop-dot"></div>Winter squash</div><div class="crop-item"><div class="crop-dot"></div>Storage onions</div></div>
+          <div class="month-cell"><div class="month-name">February</div><div class="crop-item"><div class="crop-dot"></div>Greenhouse greens</div><div class="crop-item"><div class="crop-dot"></div>Mushrooms</div><div class="crop-item"><div class="crop-dot"></div>Dried beans</div></div>
+          <div class="month-cell"><div class="month-name">March</div><div class="crop-item"><div class="crop-dot"></div>Micro-greens</div><div class="crop-item"><div class="crop-dot"></div>Maple syrup</div><div class="crop-item"><div class="crop-dot"></div>Watercress</div></div>
+          <div class="month-cell"><div class="month-name">April</div><div class="crop-item"><div class="crop-dot"></div>Ramps</div><div class="crop-item"><div class="crop-dot"></div>Morel mushrooms</div><div class="crop-item"><div class="crop-dot"></div>Spring onions</div></div>
+          <div class="month-cell"><div class="month-name">May</div><div class="crop-item"><div class="crop-dot"></div>Asparagus</div><div class="crop-item"><div class="crop-dot"></div>Spinach</div><div class="crop-item"><div class="crop-dot"></div>Radishes</div></div>
+          <div class="month-cell current"><div class="month-name">June ← Now</div><div class="crop-item"><div class="crop-dot"></div>Strawberries</div><div class="crop-item"><div class="crop-dot"></div>Arugula</div><div class="crop-item"><div class="crop-dot"></div>Snap peas</div></div>
+          <div class="month-cell"><div class="month-name">July</div><div class="crop-item"><div class="crop-dot"></div>Sweet corn</div><div class="crop-item"><div class="crop-dot"></div>Tomatoes</div><div class="crop-item"><div class="crop-dot"></div>Zucchini</div></div>
+          <div class="month-cell"><div class="month-name">August</div><div class="crop-item"><div class="crop-dot"></div>Heirloom tomatoes</div><div class="crop-item"><div class="crop-dot"></div>Peppers</div><div class="crop-item"><div class="crop-dot"></div>Peaches</div></div>
+          <div class="month-cell"><div class="month-name">September</div><div class="crop-item"><div class="crop-dot"></div>Apples</div><div class="crop-item"><div class="crop-dot"></div>Eggplant</div><div class="crop-item"><div class="crop-dot"></div>Grapes</div></div>
+          <div class="month-cell"><div class="month-name">October</div><div class="crop-item"><div class="crop-dot"></div>Winter squash</div><div class="crop-item"><div class="crop-dot"></div>Brussels sprouts</div><div class="crop-item"><div class="crop-dot"></div>Kale</div></div>
+          <div class="month-cell"><div class="month-name">November</div><div class="crop-item"><div class="crop-dot"></div>Sweet potatoes</div><div class="crop-item"><div class="crop-dot"></div>Turnips</div><div class="crop-item"><div class="crop-dot"></div>Celeriac</div></div>
+          <div class="month-cell"><div class="month-name">December</div><div class="crop-item"><div class="crop-dot"></div>Storage crops</div><div class="crop-item"><div class="crop-dot"></div>Greenhouse herbs</div><div class="crop-item"><div class="crop-dot"></div>Honey &amp; preserves</div></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-widget">
+        <div class="widget-head"><div class="widget-title">Fresh This Week</div><div class="widget-badge">Mon Update</div></div>
+        <div class="fresh-list">
+          <div class="fresh-item btn" onclick="showPage('product')"><div class="fresh-emoji">🍓</div><div class="fresh-info"><div class="fresh-name">Illinois Strawberries</div><div class="fresh-farm">Smith Family Farm</div></div><div class="fresh-status new">New</div></div>
+          <div class="fresh-item btn" onclick="showPage('product')"><div class="fresh-emoji">🥬</div><div class="fresh-info"><div class="fresh-name">Asparagus</div><div class="fresh-farm">Flatlands Garden</div></div><div class="fresh-status peak">Peak</div></div>
+          <div class="fresh-item btn" onclick="showPage('product')"><div class="fresh-emoji">🍄</div><div class="fresh-info"><div class="fresh-name">Black Pearl Oyster</div><div class="fresh-farm">Great Lakes Fungi</div></div><div class="fresh-status new">New</div></div>
+          <div class="fresh-item btn" onclick="showPage('product')"><div class="fresh-emoji">🌿</div><div class="fresh-info"><div class="fresh-name">Shishito Peppers</div><div class="fresh-farm">Flatlands Garden</div></div><div class="fresh-status limited">Low Stock</div></div>
+          <div class="fresh-item btn" onclick="showPage('product')"><div class="fresh-emoji">🫐</div><div class="fresh-info"><div class="fresh-name">Michigan Cherries</div><div class="fresh-farm">Galena Ridge</div></div><div class="fresh-status peak">Thu Arrival</div></div>
+        </div>
+      </div>
+      <div class="sidebar-widget">
+        <div class="widget-head"><div class="widget-title">Your Producers</div><a class="see-all" style="font-size:12px;cursor:none;">Manage</a></div>
+        <div class="followed-list">
+          <div class="followed-item btn" onclick="showPage('producer')"><div class="followed-avatar" style="background:var(--orange-light);">🌾</div><div><div class="followed-name">Janie's Mill</div><div class="followed-update">New: Rye flour added →</div></div></div>
+          <div class="followed-item btn" onclick="showPage('producer')"><div class="followed-avatar" style="background:#EEF2F0;">🍄</div><div><div class="followed-name">Southside Mushroom Co.</div><div class="followed-update">Black Pearl Oyster now available →</div></div></div>
+          <div class="followed-item btn" onclick="showPage('producer')"><div class="followed-avatar" style="background:#FDF0F5;">🐓</div><div><div class="followed-name">Two Bears Farm</div><div class="followed-update quiet">No updates this week</div></div></div>
+          <div class="followed-item btn" onclick="showPage('producer')"><div class="followed-avatar" style="background:var(--yellow-light);">🫙</div><div><div class="followed-name">Little Village Tortilla Co.</div><div class="followed-update">Tamales back in stock →</div></div></div>
+        </div>
+      </div>
+      <div class="sidebar-widget">
+        <div class="widget-head"><div class="widget-title">Message a Producer</div></div>
+        <div class="message-widget">
+          <div class="message-prompt">Talk directly to farmers</div>
+          <div class="message-sub">Ask about custom quantities, growing requests, or lock in a weekly supply agreement.</div>
+          <div class="message-input-wrap">
+            <textarea class="message-textarea" placeholder="Can you grow more shishitos next month? We'd need 10 lbs/week…"></textarea>
+            <button class="msg-send btn" onclick="this.textContent='✓'">→</button>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-widget">
+        <div class="newsletter-widget">
+          <div class="nl-head"><div class="nl-icon">📬</div><div><div class="nl-title">What's Fresh This Week</div><div class="nl-sub">Every Monday morning</div></div></div>
+          <div class="nl-desc">Get notified when first peaches arrive, when your favorite farm adds new products, and what chefs are ordering most.</div>
+          <input type="email" class="nl-input" placeholder="your@restaurant.com">
+          <button class="nl-btn btn" onclick="showPage('newsletter')">Subscribe — It's Free</button>
+        </div>
+      </div>
+      <div class="sidebar-widget">
+        <div class="widget-head"><div class="widget-title">Recent Reviews</div><a class="see-all" style="font-size:12px;cursor:none;">All →</a></div>
+        <div class="review-list">
+          <div class="review-item"><div class="review-top"><div><div class="reviewer">Avec Restaurant</div><div class="review-product">Illinois Strawberries · Smith Family Farm</div></div><div class="stars">★★★★★</div></div><div class="review-text">"Guests noticed immediately. Nothing like distributor berries."</div><div class="review-scores"><div class="rscore">Flavor<div class="rscore-bar-wrap"><div class="rscore-bar" style="width:100%"></div></div></div><div class="rscore">Consistency<div class="rscore-bar-wrap"><div class="rscore-bar" style="width:90%"></div></div></div><div class="rscore">Shelf life<div class="rscore-bar-wrap"><div class="rscore-bar" style="width:75%"></div></div></div><div class="rscore">Comms<div class="rscore-bar-wrap"><div class="rscore-bar" style="width:100%"></div></div></div></div></div>
+          <div class="review-item"><div class="review-top"><div><div class="reviewer">The Publican</div><div class="review-product">Lion's Mane · Southside Mushroom Co.</div></div><div class="stars">★★★★★</div></div><div class="review-text">"Arrived within 24h of harvest. Unmatched texture for searing."</div><div class="review-scores"><div class="rscore">Flavor<div class="rscore-bar-wrap"><div class="rscore-bar" style="width:100%"></div></div></div><div class="rscore">Consistency<div class="rscore-bar-wrap"><div class="rscore-bar" style="width:95%"></div></div></div><div class="rscore">Shelf life<div class="rscore-bar-wrap"><div class="rscore-bar" style="width:85%"></div></div></div><div class="rscore">Comms<div class="rscore-bar-wrap"><div class="rscore-bar" style="width:90%"></div></div></div></div></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div><div class="footer-logo">grano<span>.</span></div><p class="footer-tagline">Chicago's digital farmers market — discover local food, buy from local producers, receive one simple delivery.</p></div>
+      <div class="footer-col"><h4>Marketplace</h4><ul><li><a class="btn" onclick="showPage('marketplace')">In Season Now</a></li><li><a class="btn">Group Buys</a></li><li><a class="btn" onclick="showPage('producer')">Browse Producers</a></li><li><a class="btn">Seasonal Calendar</a></li><li><a class="btn">Chef Favorites</a></li></ul></div>
+      <div class="footer-col"><h4>Producers</h4><ul><li><a class="btn">Open a Storefront</a></li><li><a class="btn">Pricing &amp; Fees</a></li><li><a class="btn">Producer Portal</a></li><li><a class="btn">Logistics</a></li><li><a class="btn">Success Stories</a></li></ul></div>
+      <div class="footer-col"><h4>Company</h4><ul><li><a class="btn">About Grano</a></li><li><a class="btn">Our Mission</a></li><li><a class="btn">Press</a></li><li><a class="btn">Careers</a></li><li><a class="btn">Contact</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2026 Grano Ltd. Chicago, IL. All rights reserved.</p><p>Privacy · Terms · Cookies</p></div>
+  </footer>
+</div>
+
+<!-- ========== PAGE: PRODUCER PROFILE ========== -->
+<div class="page" id="page-producer">
+  <div class="producer-hero">
+    <div class="producer-hero-bg">🌾</div>
+    <div class="producer-hero-inner">
+      <div class="producer-breadcrumb">
+        <a class="btn" onclick="showPage('marketplace')">Market</a> › <a class="btn">Producers</a> › Janie's Mill
+      </div>
+      <div class="producer-hero-layout">
+        <div class="producer-hero-avatar">🌾</div>
+        <div>
+          <div class="producer-hero-name">Janie's Mill</div>
+          <div class="producer-hero-loc">📍 Ashkum, Illinois · 80 miles from Chicago</div>
+          <div class="producer-hero-tags">
+            <span class="hero-tag-chip">Heritage Grains</span>
+            <span class="hero-tag-chip">Stone-Milled</span>
+            <span class="hero-tag-chip">Certified Organic</span>
+            <span class="hero-tag-chip">4th Generation Farm</span>
+          </div>
+        </div>
+        <div class="producer-hero-actions">
+          <button class="btn-follow-lg btn following" onclick="toggleFollow(this)">✓ Following</button>
+          <button class="btn-message-lg btn">✉ Message Farm</button>
+        </div>
+      </div>
+    </div>
+    <div class="producer-stats-bar">
+      <div class="producer-stats-bar-inner">
+        <div class="pstat-hero"><span class="pstat-hero-val">23</span><span class="pstat-hero-label">Chicago restaurants</span></div>
+        <div class="pstat-hero"><span class="pstat-hero-val">5.0★</span><span class="pstat-hero-label">Average rating</span></div>
+        <div class="pstat-hero"><span class="pstat-hero-val">12</span><span class="pstat-hero-label">Flour varieties</span></div>
+        <div class="pstat-hero"><span class="pstat-hero-val">4th gen</span><span class="pstat-hero-label">Family farm</span></div>
+        <div class="pstat-hero"><span class="pstat-hero-val">Since 2015</span><span class="pstat-hero-label">On Grano</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="profile-body">
+    <div>
+      <div class="profile-tab-bar">
+        <div class="profile-tab active btn" onclick="switchTab(this,'tab-story')">Our Story</div>
+        <div class="profile-tab btn" onclick="switchTab(this,'tab-products')">Products (12)</div>
+        <div class="profile-tab btn" onclick="switchTab(this,'tab-reviews')">Reviews (47)</div>
+      </div>
+
+      <!-- STORY TAB -->
+      <div id="tab-story">
+        <div class="story-block">
+          <h3>Four Generations of Illinois Grain</h3>
+          <p>Harold and Janie Wilken started milling flour on their Ashkum, Illinois farm in 2015 after decades of growing grain for commodity markets. What started as an experiment with a small stone mill has grown into one of the Midwest's most beloved specialty flour operations.</p>
+          <p>Their daughter Jennie now runs the day-to-day operation, working directly with Chicago's best bakeries and restaurants to grow and mill the varieties they want — from ancient einkorn to modern bread wheats. Everything is grown on the farm's own soil, milled within days of harvest, and shipped the same week.</p>
+          <p>"We wanted chefs to taste the difference between flour that's been sitting in a warehouse for a year and flour that was still grain a week ago," Jennie says. "Once they taste it, they never go back."</p>
+        </div>
+        <div class="story-block">
+          <h3>Growing Practices</h3>
+          <p>Janie's Mill farms 700 acres in Iroquois County using regenerative practices developed over four generations. No synthetic inputs. Soil health is everything.</p>
+          <div class="practices-grid">
+            <div class="practice-item"><span class="practice-icon">🌱</span><div class="practice-label">Certified Organic</div><div class="practice-sub">USDA certified since 2012</div></div>
+            <div class="practice-item"><span class="practice-icon">🔄</span><div class="practice-label">Cover Cropping</div><div class="practice-sub">Year-round soil cover</div></div>
+            <div class="practice-item"><span class="practice-icon">💧</span><div class="practice-label">No Synthetic Inputs</div><div class="practice-sub">Zero pesticides, ever</div></div>
+            <div class="practice-item"><span class="practice-icon">🪨</span><div class="practice-label">Stone Milling</div><div class="practice-sub">Preserves full nutrition</div></div>
+            <div class="practice-item"><span class="practice-icon">📦</span><div class="practice-label">Milled to Order</div><div class="practice-sub">Ships within 5 days</div></div>
+            <div class="practice-item"><span class="practice-icon">🤝</span><div class="practice-label">Direct Relationships</div><div class="practice-sub">Know your farmer</div></div>
+          </div>
+        </div>
+        <div class="story-block">
+          <h3>Who's Buying from Janie's Mill</h3>
+          <p>Avec · The Publican · Publican Quality Bread · Floriole Cafe · Pleasant House Bakery · Hoosier Mama Pie Company · Longman &amp; Eagle · Giant · Smyth · The Loyalist · and 13 more Chicago restaurants and bakeries.</p>
+        </div>
+      </div>
+
+      <!-- PRODUCTS TAB -->
+      <div id="tab-products" style="display:none;">
+        <div class="profile-products-grid">
+          <div class="profile-product-card btn" onclick="showPage('product')"><div class="ppc-img" style="background:var(--orange-light);">🌾</div><div class="ppc-body"><div class="ppc-name">Red Fife Wheat Flour</div><div class="ppc-meta">Heritage wheat · Stone-milled · 3 lb bag</div><div class="ppc-footer"><div><span class="ppc-price">$7.50</span><span class="ppc-unit"> / 3 lbs</span></div><button class="btn-ppc-add btn" onclick="event.stopPropagation();addToCart(this)">+ Add</button></div></div></div>
+          <div class="profile-product-card btn" onclick="showPage('product')"><div class="ppc-img" style="background:#F5F0F8;">🌾</div><div class="ppc-body"><div class="ppc-name">Einkorn Flour</div><div class="ppc-meta">Ancient grain · High protein · 2 lb bag</div><div class="ppc-footer"><div><span class="ppc-price">$9.00</span><span class="ppc-unit"> / 2 lbs</span></div><button class="btn-ppc-add btn" onclick="event.stopPropagation();addToCart(this)">+ Add</button></div></div></div>
+          <div class="profile-product-card btn" onclick="showPage('product')"><div class="ppc-img" style="background:#F0F2F5;">🌾</div><div class="ppc-body"><div class="ppc-name">Dark Rye Flour</div><div class="ppc-meta">Whole grain rye · Just milled · 2 lb bag</div><div class="ppc-footer"><div><span class="ppc-price">$8.00</span><span class="ppc-unit"> / 2 lbs</span></div><button class="btn-ppc-add btn" onclick="event.stopPropagation();addToCart(this)">+ Add</button></div></div></div>
+          <div class="profile-product-card btn" onclick="showPage('product')"><div class="ppc-img" style="background:var(--yellow-light);">🌾</div><div class="ppc-body"><div class="ppc-name">Spelt Flour</div><div class="ppc-meta">Whole spelt · Nutty flavor · 2 lb bag</div><div class="ppc-footer"><div><span class="ppc-price">$8.50</span><span class="ppc-unit"> / 2 lbs</span></div><button class="btn-ppc-add btn" onclick="event.stopPropagation();addToCart(this)">+ Add</button></div></div></div>
+        </div>
+      </div>
+
+      <!-- REVIEWS TAB -->
+      <div id="tab-reviews" style="display:none;">
+        <div class="profile-review-card">
+          <div class="prc-top"><div><div class="prc-restaurant">Publican Quality Bread</div><div class="prc-date">June 12, 2026</div></div><div class="stars">★★★★★</div></div>
+          <div class="prc-product">Red Fife Wheat Flour</div>
+          <div class="prc-text">"This flour has changed the way we think about sourcing. The freshness is immediately apparent in the crumb structure of our sourdough. Our customers have asked what we changed. The answer: everything starts with grain."</div>
+          <div class="prc-scores">
+            <div class="prc-score-row"><div class="prc-score-label">Flavor</div><div class="prc-score-bar-wrap"><div class="prc-score-bar" style="width:100%"></div></div><div class="prc-score-num">5.0</div></div>
+            <div class="prc-score-row"><div class="prc-score-label">Consistency</div><div class="prc-score-bar-wrap"><div class="prc-score-bar" style="width:100%"></div></div><div class="prc-score-num">5.0</div></div>
+            <div class="prc-score-row"><div class="prc-score-label">Shelf Life</div><div class="prc-score-bar-wrap"><div class="prc-score-bar" style="width:80%"></div></div><div class="prc-score-num">4.0</div></div>
+            <div class="prc-score-row"><div class="prc-score-label">Communication</div><div class="prc-score-bar-wrap"><div class="prc-score-bar" style="width:100%"></div></div><div class="prc-score-num">5.0</div></div>
+          </div>
+        </div>
+        <div class="profile-review-card">
+          <div class="prc-top"><div><div class="prc-restaurant">Avec Restaurant</div><div class="prc-date">May 28, 2026</div></div><div class="stars">★★★★★</div></div>
+          <div class="prc-product">Einkorn Flour</div>
+          <div class="prc-text">"Jennie worked with us to grow a specific einkorn variety we wanted for our pasta program. That kind of relationship doesn't exist with distributors. Irreplaceable."</div>
+          <div class="prc-scores">
+            <div class="prc-score-row"><div class="prc-score-label">Flavor</div><div class="prc-score-bar-wrap"><div class="prc-score-bar" style="width:100%"></div></div><div class="prc-score-num">5.0</div></div>
+            <div class="prc-score-row"><div class="prc-score-label">Consistency</div><div class="prc-score-bar-wrap"><div class="prc-score-bar" style="width:95%"></div></div><div class="prc-score-num">4.8</div></div>
+            <div class="prc-score-row"><div class="prc-score-label">Shelf Life</div><div class="prc-score-bar-wrap"><div class="prc-score-bar" style="width:85%"></div></div><div class="prc-score-num">4.3</div></div>
+            <div class="prc-score-row"><div class="prc-score-label">Communication</div><div class="prc-score-bar-wrap"><div class="prc-score-bar" style="width:100%"></div></div><div class="prc-score-num">5.0</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE SIDEBAR -->
+    <aside class="profile-sidebar-sticky">
+      <div class="sidebar-widget">
+        <div class="widget-head"><div class="widget-title">Quick Order</div></div>
+        <div style="padding:16px;">
+          <div style="font-size:13px;color:var(--stone);margin-bottom:14px;line-height:1.6;">Next delivery window: <strong style="color:var(--soil);">Wednesday, July 2nd</strong></div>
+          <div class="profile-products-grid" style="grid-template-columns:1fr;gap:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--linen);border-radius:8px;">
+              <div><div style="font-size:13px;font-weight:600;color:var(--soil);">🌾 Red Fife Flour</div><div style="font-size:11px;color:var(--stone);">$7.50 / 3 lbs</div></div>
+              <button class="btn-ppc-add btn" onclick="addToCart(this)">+ Add</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--linen);border-radius:8px;">
+              <div><div style="font-size:13px;font-weight:600;color:var(--soil);">🌾 Einkorn Flour</div><div style="font-size:11px;color:var(--stone);">$9.00 / 2 lbs</div></div>
+              <button class="btn-ppc-add btn" onclick="addToCart(this)">+ Add</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--linen);border-radius:8px;">
+              <div><div style="font-size:13px;font-weight:600;color:var(--soil);">🌾 Dark Rye Flour</div><div style="font-size:11px;color:var(--stone);">$8.00 / 2 lbs</div></div>
+              <button class="btn-ppc-add btn" onclick="addToCart(this)">+ Add</button>
+            </div>
+          </div>
+          <button class="btn-checkout btn" style="margin-top:12px;" onclick="showPage('cart')">View Cart →</button>
+        </div>
+      </div>
+      <div class="sidebar-widget">
+        <div class="widget-head"><div class="widget-title">Message Janie's Mill</div></div>
+        <div class="message-widget">
+          <div class="message-sub">Ask about custom orders, growing requests, or set up a recurring order.</div>
+          <div class="message-input-wrap">
+            <textarea class="message-textarea" placeholder="We'd love to discuss a custom flour blend for our pasta program…"></textarea>
+            <button class="msg-send btn" onclick="this.textContent='✓'">→</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- ========== PAGE: PRODUCT ========== -->
+<div class="page" id="page-product">
+  <div class="product-page-inner">
+    <div class="product-breadcrumb">
+      <a class="btn" onclick="showPage('marketplace')">Market</a> ›
+      <a class="btn">Fruit</a> ›
+      <a class="btn" onclick="showPage('producer')">Smith Family Farm</a> ›
+      Illinois Strawberries
+    </div>
+    <div class="product-page-layout">
+      <div class="product-gallery">
+        <div class="product-main-img" style="background:#FDF0F5;">
+          🍓
+          <div class="product-img-badges">
+            <span class="badge-chip chip-green">Picked Yesterday</span>
+            <span class="badge-chip chip-yellow" style="margin-top:4px;">Chef Favorite</span>
+          </div>
+        </div>
+        <div class="product-thumbs">
+          <div class="product-thumb active" style="background:#FDF0F5;">🍓</div>
+          <div class="product-thumb" style="background:#F5F8F5;">🌱</div>
+          <div class="product-thumb" style="background:var(--linen);">📦</div>
+          <div class="product-thumb" style="background:#FDF8F0;">🌾</div>
+        </div>
+      </div>
+
+      <div class="product-info">
+        <div class="product-page-farm btn" onclick="showPage('producer')">
+          <div class="product-page-farm-avatar" style="background:#FDF0F5;">🐓</div>
+          <div>
+            <div class="product-page-farm-name">Smith Family Farm →</div>
+            <div class="product-page-farm-loc">📍 Elgin, IL · 18 miles from Chicago</div>
+          </div>
+        </div>
+
+        <div class="product-page-name">Illinois Strawberries</div>
+
+        <div class="product-page-vitals">
+          <div class="vital-card"><div class="vital-label">Harvested</div><div class="vital-value">Yesterday, June 26</div></div>
+          <div class="vital-card"><div class="vital-label">Distance</div><div class="vital-value">18 miles away</div></div>
+          <div class="vital-card"><div class="vital-label">Stock</div><div class="vital-value urgent">⚡ Only 8 flats left</div></div>
+          <div class="vital-card"><div class="vital-label">Season ends</div><div class="vital-value season">~3 weeks remaining</div></div>
+        </div>
+
+        <div class="product-price-row">
+          <span class="product-page-price">$28</span>
+          <span class="product-page-unit">/ flat (12 pints)</span>
+        </div>
+        <div class="product-price-note">$2.33 per pint · Minimum 1 flat · Case pricing available at 5+ flats</div>
+
+        <div class="qty-row">
+          <span class="qty-label">Quantity</span>
+          <div class="qty-control">
+            <button class="qty-btn btn" onclick="changeQty(-1)">−</button>
+            <input class="qty-val" id="qty-val" value="1" readonly>
+            <button class="qty-btn btn" onclick="changeQty(1)">+</button>
+          </div>
+          <span style="font-size:13px;color:var(--stone);" id="qty-total">$28.00 total</span>
+        </div>
+
+        <button class="btn-add-full btn" id="main-add-btn" onclick="addToCart(this,'product-page')">Add to Cart — $28.00</button>
+        <button class="btn-follow-product btn" onclick="toggleFollow(this)">🔔 Follow Smith Family Farm — get notified when they add products</button>
+
+        <div class="product-delivery-info">
+          <div class="delivery-icon">🚚</div>
+          <div class="delivery-text"><strong>Delivered Wednesday, July 2nd</strong><br>Harvested Tuesday morning · Delivered to your kitchen by 6am · One combined delivery with all your Grano orders</div>
+        </div>
+
+        <div class="product-desc-block">
+          <h4>About these strawberries</h4>
+          <p>Smith Family Farm has grown strawberries on their Elgin property for three generations. Their June-bearing variety — a Chandler cross developed by the family — produces larger, deeper-red berries than commercial varieties, with a fragrance you can smell from across a kitchen. No preservatives, no wax coating, no gas ripening.</p>
+        </div>
+
+        <div class="product-extras">
+          <div class="product-extra-row"><div class="product-extra-icon">🌿</div>Certified naturally grown — no synthetic pesticides</div>
+          <div class="product-extra-row"><div class="product-extra-icon">📅</div>Harvested to order — not pre-picked for a warehouse</div>
+          <div class="product-extra-row"><div class="product-extra-icon">🤝</div>14 Grano restaurants ordered this week</div>
+          <div class="product-extra-row"><div class="product-extra-icon">↩️</div>Freshness guarantee — contact farm within 24h of delivery</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE: CART ========== -->
+<div class="page" id="page-cart">
+  <div class="cart-page-inner">
+    <div class="cart-page-title">Your Cart</div>
+    <div class="cart-page-sub">Estimated delivery: <strong>Wednesday, July 2nd</strong> · All producers in one delivery</div>
+    <div class="cart-layout">
+      <div class="cart-items">
+        <div class="cart-farm-divider">📍 Smith Family Farm · Elgin, IL</div>
+        <div class="cart-item">
+          <div class="cart-item-emoji" style="background:#FDF0F5;">🍓</div>
+          <div class="cart-item-info">
+            <div class="cart-item-farm">Smith Family Farm</div>
+            <div class="cart-item-name">Illinois Strawberries</div>
+            <div class="cart-item-meta">Picked June 26 · 18 miles from Chicago</div>
+          </div>
+          <div class="cart-item-right">
+            <div class="cart-item-price">$28.00</div>
+            <div class="cart-qty-control">
+              <button class="cqb btn" onclick="cartQty(this,-1)">−</button>
+              <span class="cqv">1</span>
+              <button class="cqb btn" onclick="cartQty(this,1)">+</button>
+            </div>
+            <button class="cart-remove btn" onclick="this.closest('.cart-item').remove();updateCartTotal()">Remove</button>
+          </div>
+        </div>
+
+        <div class="cart-farm-divider">📍 Janie's Mill · Ashkum, IL</div>
+        <div class="cart-item">
+          <div class="cart-item-emoji" style="background:var(--orange-light);">🌾</div>
+          <div class="cart-item-info">
+            <div class="cart-item-farm">Janie's Mill</div>
+            <div class="cart-item-name">Red Fife Wheat Flour</div>
+            <div class="cart-item-meta">Milled this week · Heritage grain · 3 lb bag</div>
+          </div>
+          <div class="cart-item-right">
+            <div class="cart-item-price">$15.00</div>
+            <div class="cart-qty-control">
+              <button class="cqb btn" onclick="cartQty(this,-1)">−</button>
+              <span class="cqv">2</span>
+              <button class="cqb btn" onclick="cartQty(this,1)">+</button>
+            </div>
+            <button class="cart-remove btn" onclick="this.closest('.cart-item').remove();updateCartTotal()">Remove</button>
+          </div>
+        </div>
+
+        <div class="cart-farm-divider">📍 Great Lakes Fungi · Evanston, IL</div>
+        <div class="cart-item">
+          <div class="cart-item-emoji" style="background:#EEF2F0;">🍄</div>
+          <div class="cart-item-info">
+            <div class="cart-item-farm">Great Lakes Fungi</div>
+            <div class="cart-item-name">Black Pearl Oyster Mushrooms</div>
+            <div class="cart-item-meta">Harvested today · First harvest of new variety</div>
+          </div>
+          <div class="cart-item-right">
+            <div class="cart-item-price">$12.00</div>
+            <div class="cart-qty-control">
+              <button class="cqb btn" onclick="cartQty(this,-1)">−</button>
+              <span class="cqv">1</span>
+              <button class="cqb btn" onclick="cartQty(this,1)">+</button>
+            </div>
+            <button class="cart-remove btn" onclick="this.closest('.cart-item').remove();updateCartTotal()">Remove</button>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding:16px 18px;background:#fff;border:1px solid #ECEAE4;border-radius:12px;">
+          <div style="font-size:13px;font-weight:600;color:var(--soil);margin-bottom:8px;">🛒 Keep Shopping</div>
+          <div style="font-size:13px;color:var(--stone);margin-bottom:14px;">14 producers have new products this week.</div>
+          <button class="btn-continue btn" onclick="showPage('marketplace')">← Back to Market</button>
+        </div>
+      </div>
+
+      <div class="cart-summary">
+        <div class="summary-title">Order Summary</div>
+        <div class="summary-row"><span>Illinois Strawberries × 1</span><span>$28.00</span></div>
+        <div class="summary-row"><span>Red Fife Flour × 2</span><span>$15.00</span></div>
+        <div class="summary-row"><span>Black Pearl Oyster × 1</span><span>$12.00</span></div>
+        <div class="summary-row"><span>Subtotal</span><span id="cart-subtotal">$55.00</span></div>
+        <div class="summary-row"><span>Delivery fee</span><span>$8.00</span></div>
+        <div class="summary-row"><span>Grano service fee (5%)</span><span>$2.75</span></div>
+        <div class="summary-row total"><span>Total</span><strong id="cart-total">$65.75</strong></div>
+        <div class="summary-delivery-note">🌿 Combined delivery from 3 farms in one drop on Wednesday, July 2nd — before 6am.</div>
+        <button class="btn-checkout btn">Checkout →</button>
+        <button class="btn-continue btn" onclick="showPage('marketplace')">← Continue Shopping</button>
+        <div style="margin-top:16px;text-align:center;">
+          <div style="font-size:11px;color:var(--stone);margin-bottom:8px;font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;">Producers in this order</div>
+          <div style="display:flex;justify-content:center;gap:8px;">
+            <span style="font-size:20px;" title="Smith Family Farm">🐓</span>
+            <span style="font-size:20px;" title="Janie's Mill">🌾</span>
+            <span style="font-size:20px;" title="Great Lakes Fungi">🍄</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PAGE: NEWSLETTER ========== -->
+<div class="page" id="page-newsletter">
+  <div class="newsletter-page">
+    <div class="newsletter-inner">
+      <div class="nl-page-label">Every Monday morning</div>
+      <h1 class="nl-page-title">What's <em>Fresh</em><br>This Week.</h1>
+      <p class="nl-page-sub">The only email that tells you what was picked yesterday, what's about to go out of season, and which Chicago chefs are building menus around it right now.</p>
+
+      <div class="nl-preview-card">
+        <div class="nl-preview-head">
+          <div class="nl-preview-icon">📬</div>
+          <div>
+            <div class="nl-preview-from">Grano · Chicago Farmers Market</div>
+            <div class="nl-preview-date">Monday, June 23, 2026 · 6:00am</div>
+          </div>
+        </div>
+        <div class="nl-preview-subject">🍓 First strawberries. Morels are back. 14 new products this week.</div>
+        <div class="nl-preview-item">
+          <div class="nl-item-emoji">🍓</div>
+          <div>
+            <div class="nl-item-name">First Illinois Strawberries of 2026</div>
+            <div class="nl-item-detail">Smith Family Farm · $28/flat · 18 miles away</div>
+          </div>
+          <span class="nl-item-badge nl-badge-new">Just In</span>
+        </div>
+        <div class="nl-preview-item">
+          <div class="nl-item-emoji">🥬</div>
+          <div>
+            <div class="nl-item-name">Asparagus — Back for its 4-week window</div>
+            <div class="nl-item-detail">Flatlands Market Garden · $6/lb</div>
+          </div>
+          <span class="nl-item-badge nl-badge-peak">Peak Now</span>
+        </div>
+        <div class="nl-preview-item">
+          <div class="nl-item-emoji">🍄</div>
+          <div>
+            <div class="nl-item-name">Fresh Morels — Gone by month's end</div>
+            <div class="nl-item-detail">Great Lakes Fungi · $22/lb</div>
+          </div>
+          <span class="nl-item-badge nl-badge-low">Low Stock</span>
+        </div>
+        <div class="nl-preview-item">
+          <div class="nl-item-emoji">🌾</div>
+          <div>
+            <div class="nl-item-name">New: Stone-Milled Dark Rye Flour</div>
+            <div class="nl-item-detail">Janie's Mill · $8/2 lbs</div>
+          </div>
+          <span class="nl-item-badge nl-badge-new">New Variety</span>
+        </div>
+      </div>
+
+      <form class="nl-form" onsubmit="nlSubmit(event)">
+        <div class="nl-form-row">
+          <div class="nl-field"><label>Your name</label><input type="text" placeholder="Maria Chen"></div>
+          <div class="nl-field"><label>Restaurant / Business</label><input type="text" placeholder="The Publican"></div>
+        </div>
+        <div class="nl-field"><label>Email address</label><input type="email" placeholder="maria@thepublican.com"></div>
+        <div class="nl-field">
+          <label>I am a…</label>
+          <select>
+            <option value="" disabled selected>Choose one</option>
+            <option>Chef / Restaurant</option>
+            <option>Home cook</option>
+            <option>Food retailer</option>
+            <option>Caterer</option>
+            <option>Food journalist / blogger</option>
+          </select>
+        </div>
+        <div class="nl-field">
+          <label>Notify me about</label>
+          <div class="nl-checkboxes">
+            <label class="nl-check-label"><input type="checkbox" checked> New products</label>
+            <label class="nl-check-label"><input type="checkbox" checked> In-season alerts</label>
+            <label class="nl-check-label"><input type="checkbox" checked> Group buy openings</label>
+            <label class="nl-check-label"><input type="checkbox"> New producers</label>
+            <label class="nl-check-label"><input type="checkbox"> Chef picks</label>
+            <label class="nl-check-label"><input type="checkbox"> Restocks</label>
+          </div>
+        </div>
+        <button type="submit" class="btn-nl-submit btn">Subscribe to the Weekly Market →</button>
+        <div class="nl-fine-print">No spam, ever. One email per week, every Monday at 6am. Unsubscribe any time.</div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+document.querySelectorAll('.btn,.product-card,.producer-card,.group-card,.trending-item,.fresh-item,.followed-item,.cat-pill,.profile-tab,.product-thumb').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.style.width = '18px'; cursor.style.height = '18px'; });
+  el.addEventListener('mouseleave', () => { cursor.style.width = '10px'; cursor.style.height = '10px'; });
+});
+
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  const navEl = document.getElementById('nav-' + page);
+  if (navEl) navEl.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function toggleFollow(btn) {
+  const isFollowing = btn.classList.contains('following');
+  btn.classList.toggle('following');
+  btn.textContent = isFollowing ? '+ Follow' : '✓ Following';
+}
+
+let cartCount = 3;
+function addToCart(btn, type) {
+  const orig = btn.textContent;
+  btn.textContent = '✓ Added';
+  btn.classList.add('added');
+  cartCount++;
+  document.getElementById('cart-count').textContent = cartCount;
+  setTimeout(() => {
+    btn.textContent = orig;
+    btn.classList.remove('added');
+  }, 1400);
+}
+
+let qty = 1;
+const unitPrice = 28;
+function changeQty(delta) {
+  qty = Math.max(1, qty + delta);
+  document.getElementById('qty-val').value = qty;
+  document.getElementById('qty-total').textContent = '$' + (qty * unitPrice).toFixed(2) + ' total';
+  document.getElementById('main-add-btn').textContent = 'Add to Cart — $' + (qty * unitPrice).toFixed(2);
+}
+
+function cartQty(btn, delta) {
+  const valEl = btn.parentElement.querySelector('.cqv');
+  let v = Math.max(1, parseInt(valEl.textContent) + delta);
+  valEl.textContent = v;
+  updateCartTotal();
+}
+
+function updateCartTotal() {
+  // Simple recalc for demo
+  const items = document.querySelectorAll('.cart-item');
+  let sub = 0;
+  const prices = [28, 7.5, 12];
+  items.forEach((item, i) => {
+    const qv = item.querySelector('.cqv');
+    if (qv && prices[i]) sub += parseInt(qv.textContent) * prices[i];
+  });
+  const subtotalEl = document.getElementById('cart-subtotal');
+  const totalEl = document.getElementById('cart-total');
+  if (subtotalEl) subtotalEl.textContent = '$' + sub.toFixed(2);
+  if (totalEl) totalEl.textContent = '$' + (sub + 8 + sub * 0.05).toFixed(2);
+}
+
+function switchTab(tab, targetId) {
+  document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  ['tab-story','tab-products','tab-reviews'].forEach(id => {
+    document.getElementById(id).style.display = id === targetId ? 'block' : 'none';
+  });
+}
+
+document.querySelectorAll('.cat-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+  });
+});
+
+function nlSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('.btn-nl-submit');
+  btn.textContent = '✓ You\'re on the list — see you Monday!';
+  btn.style.background = 'var(--sage)';
+}
+</script>
+</body>
+</html>
