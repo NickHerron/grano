@@ -7,7 +7,7 @@ export default function HomeHero({ coverUrl }) {
   const src = coverUrl || FALLBACK_STILL
 
   return (
-    <section className="grid grid-cols-1 min-[901px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1.1fr)] bg-paper text-ink min-h-0 min-[901px]:min-h-[560px] border-b border-hair">
+    <section className="grid grid-cols-1 min-[901px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1.1fr)] bg-paper text-ink min-h-0 min-[901px]:min-h-[560px]">
       <div className="flex flex-col justify-center px-5 py-10 min-[901px]:py-14 min-[901px]:pl-[max(48px,calc((100vw-1100px)/2))] min-[901px]:pr-[8%]">
         <p className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-gold mb-[18px]">
           Chicago · this week
