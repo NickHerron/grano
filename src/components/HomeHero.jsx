@@ -11,7 +11,7 @@ export default function HomeHero() {
             Meet the people who make your food.
           </h1>
           <p className="font-serif text-[22px] sm:text-[28px] text-wheat font-medium tracking-tight mb-4">
-            Chicago&apos;s local food directory.
+            Chicago&apos;s local food network.
           </p>
           <p className="text-[16px] sm:text-[18px] text-white/70 leading-relaxed mb-8 max-w-[520px]">
             Farms, bakeries, and producers you can find this week.

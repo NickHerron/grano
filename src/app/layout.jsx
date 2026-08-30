@@ -6,7 +6,7 @@ import { computeRoles } from '@/lib/accountRoles'
 import { resolveArea } from '@/lib/locationQueries'
 
 export const metadata = {
-  title: "Grano — Chicago's Local Food Directory",
+  title: "Grano — Chicago's Local Food Network",
   description: "Meet the people who make your food. Farms, bakeries, and producers you can find this week.",
 }
 
