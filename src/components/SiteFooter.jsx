@@ -23,12 +23,18 @@ export default function SiteFooter() {
   return (
     <footer className="bg-paper border-t border-hair">
       {!quiet && (
-        <div className="max-w-[720px] mx-auto px-4 sm:px-8 py-14 text-center">
+        <div className="max-w-[720px] mx-auto px-4 sm:px-8 py-14 sm:py-16 text-center">
+          <p className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-gold mb-3">
+            For producers
+          </p>
           <h2 className="font-serif text-[26px] sm:text-[32px] font-medium text-ink mb-3">
-            Your business deserves to be easier to find.
+            Are you a local food business?
           </h2>
-          <p className="text-[15px] text-stone mb-6 max-w-[480px] mx-auto">
-            Create a free profile. No subscription. No need to sell on Grano or post.
+          <p className="text-[15px] text-stone mb-5 max-w-[520px] mx-auto">
+            Create your free Grano profile. Get discovered, showcase what you make, reach local customers, connect with restaurants, and promote events. Sell through Grano when you’re ready.
+          </p>
+          <p className="text-[13px] text-stone mb-6">
+            Free profile. No subscription. No requirement to sell.
           </p>
           <Link href="/signup?as=producer" className="inline-block bg-transparent text-ink text-[15px] font-semibold px-6 py-3 rounded-btn border border-ink hover:bg-card transition-colors">
             Create free profile
