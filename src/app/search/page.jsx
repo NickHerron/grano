@@ -7,6 +7,7 @@ import ProducerCard from '@/components/ProducerCard'
 import RestaurantCard from '@/components/RestaurantCard'
 import ProductCard from '@/components/ProductCard'
 import MarketCard from '@/components/MarketCard'
+import { overlayProducerCopy } from '@/lib/producerCopy'
 
 export const metadata = { title: 'Search | Grano' }
 
@@ -105,14 +106,15 @@ export default async function SearchPage({ searchParams }) {
   }, {})
 
   const mappedFarms = allFarms.map(f => {
-    const farmProducts = productsByFarm[f.id] || []
+    const overlaid = overlayProducerCopy(f)
     return {
-      id: f.id, slug: f.slug, name: f.name, location: f.location, bio: f.bio,
-      avatarBg: f.avatar_bg, logoUrl: f.logo_url, producerType: f.producer_type,
-      verificationStatus: f.verification_status, sellOnGrano: f.sell_on_grano, practices: f.practices,
-      sellsWholesale: f.sells_wholesale, buysWholesale: f.buys_wholesale,
-      isFollowing: followedFarmIds.has(f.id), productCount: farmProducts.length,
-      availableProducts: farmProducts.filter(p => p.for_sale && p.is_available !== false).map(p => p.name),
+      id: overlaid.id, slug: overlaid.slug, name: overlaid.name, location: overlaid.location,
+      city: overlaid.city, state: overlaid.state, bio: overlaid.bio,
+      avatarBg: overlaid.avatar_bg, logoUrl: overlaid.logo_url, coverPhotoUrl: overlaid.cover_photo_url,
+      producerType: overlaid.producer_type,
+      verificationStatus: overlaid.verification_status, sellOnGrano: overlaid.sell_on_grano, practices: overlaid.practices,
+      sellsWholesale: overlaid.sells_wholesale, buysWholesale: overlaid.buys_wholesale,
+      hasPickup: Boolean(overlaid.practices?.pickup_available || farmIdsWithLocations.has(overlaid.id)),
     }
   })
 

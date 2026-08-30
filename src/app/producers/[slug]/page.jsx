@@ -5,11 +5,12 @@ import { getLiveMarketplaceEnabled } from '@/lib/marketplace'
 import { getPublicNetwork } from '@/lib/networkQueries'
 import { allowedWorkOptionKeys, defaultWorkOptionKeys, resolveWorkOptions } from '@/lib/workOptions'
 import { getRolesFor } from '@/lib/businessRoleQueries'
+import { overlayProducerCopy } from '@/lib/producerCopy'
 
 async function getFarm(slug) {
   const supabase = createClient()
   const { data: farm } = await supabase.from('farms').select('*').eq('slug', slug).maybeSingle()
-  return farm
+  return farm ? overlayProducerCopy(farm) : farm
 }
 
 export async function generateMetadata({ params }) {
