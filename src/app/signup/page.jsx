@@ -126,7 +126,7 @@ export default function SignupPage() {
     // as before. onboarding_status stays 'not_started' for a new farm until the
     // wizard is finished or abandoned, so a later /login also knows to route them
     // back here — see the redirect in login/page.jsx.
-    router.push(roles.includes('producer') ? '/onboarding' : wantsOrganization ? '/dashboard/organization' : '/dashboard')
+    router.push(roles.includes('producer') ? '/share-profile' : wantsOrganization ? '/dashboard/organization' : '/dashboard')
     router.refresh()
   }
 

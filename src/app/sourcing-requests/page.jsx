@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getInitials } from '@/lib/initials'
 import { FREQUENCY_OPTIONS, seasonRangeLabel, hydrateSourcingRequestOwners } from '@/lib/sourcingOptions'
@@ -22,6 +23,8 @@ export default async function SourcingRequestsPage() {
     .eq('status', 'open')
     .order('created_at', { ascending: false })
   const requests = await hydrateSourcingRequestOwners(supabase, rawRequests || [])
+
+  if (!requests.length) redirect('/')
 
   return (
     <div className="max-w-[1000px] mx-auto px-4 sm:px-8 py-8 pb-20">
