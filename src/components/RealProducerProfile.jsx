@@ -73,7 +73,7 @@ export default function RealProducerProfile({
           {farm.cover_photo_url ? (
             <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${farm.cover_photo_url})` }} />
           ) : (
-            <ProducerField farm={farm} className="rounded-2xl" />
+            <ProducerField farm={farm} className="rounded-2xl" showLabel />
           )}
         </div>
 
@@ -88,9 +88,9 @@ export default function RealProducerProfile({
             <div className="mt-6">
               <a href="#find-us"
                 className="inline-block bg-rust text-white text-[14px] font-semibold px-6 py-3 rounded-full hover:bg-[#A8521F] transition-colors">
-                Find us this week
+                {isElMolcajete(farm) ? 'Find us' : 'Find us this week'}
               </a>
-              {pickupLine && <div className="text-[13px] text-stone mt-2">{pickupLine}</div>}
+              {!isElMolcajete(farm) && pickupLine && <div className="text-[13px] text-stone mt-2">{pickupLine}</div>}
             </div>
           )}
         </div>
@@ -127,7 +127,7 @@ export default function RealProducerProfile({
 
         {locations.length === 0 && (farm.website || farm.instagram) && (
           <section id="find-us" className="scroll-mt-20">
-            <SectionHeading>Where to find us</SectionHeading>
+            <SectionHeading>{isElMolcajete(farm) ? 'Find us' : 'Where to find us'}</SectionHeading>
             <p className="text-[15px] text-stone">
               {[farm.website && farm.website.replace(/^https?:\/\//, ''), farm.instagram && 'Instagram', 'ask this week'].filter(Boolean).join(' · ')}
             </p>
@@ -136,7 +136,7 @@ export default function RealProducerProfile({
 
         {locations.length > 0 && (
           <section id="find-us" className="scroll-mt-20">
-            <SectionHeading>Where to find us</SectionHeading>
+            <SectionHeading>{isElMolcajete(farm) ? 'Find us' : 'Where to find us'}</SectionHeading>
             <ul className="divide-y divide-[#ECEAE4] border-t border-b border-[#ECEAE4]">
               {locations.map(loc => (
                 <li key={loc.id || loc.name} className="py-4">

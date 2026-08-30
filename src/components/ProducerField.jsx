@@ -5,7 +5,7 @@ export function is24Karat(farm = {}) {
 const FIELDS = [
   { test: /gigi/, bg: '#E8D3B0', ink: '#3D2A14', icon: 'ginger' },
   { test: /scratch|cookie/, bg: '#E6DCCB', ink: '#3A2C1E', icon: 'cookie' },
-  { test: /molcajete/, bg: '#E8C9B4', ink: '#4A2614', icon: 'bowl' },
+  { test: /molcajete/, bg: '#E8C9B4', ink: '#4A2614', icon: 'bowl', label: 'El Molcajete' },
   { test: /ivy/, bg: '#DDE4D4', ink: '#2C3A28', icon: 'herb' },
 ]
 
@@ -65,11 +65,14 @@ function Mark({ icon, ink }) {
   )
 }
 
-export default function ProducerField({ farm, className = '' }) {
+export default function ProducerField({ farm, className = '', showLabel = false }) {
   const field = producerField(farm)
   return (
-    <div className={`w-full h-full flex items-center justify-center ${className}`} style={{ background: field.bg, color: field.ink }}>
+    <div className={`w-full h-full flex flex-col items-center justify-center gap-2 ${className}`} style={{ background: field.bg, color: field.ink }}>
       <Mark icon={field.icon} ink={field.ink} />
+      {showLabel && field.label && (
+        <div className="font-serif text-[22px] sm:text-[28px] font-medium" style={{ color: field.ink }}>{field.label}</div>
+      )}
       <span className="sr-only">{farm.name}</span>
     </div>
   )

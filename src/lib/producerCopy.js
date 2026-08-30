@@ -6,9 +6,9 @@ export const EL_MOLCAJETE_CARD_BIO =
 
 
 export const EL_MOLCAJETE_FIND_US = [
-  { id: 'overlay-efm', name: 'Evanston Farmers Market', location_type: 'farmers_market' },
-  { id: 'overlay-wo', name: 'Wild Onion', address: 'Rogers Park', location_type: 'pickup' },
-  { id: 'overlay-web', name: 'elmolcajetesauces.com', location_type: 'online', link: 'https://elmolcajetesauces.com' },
+  { id: 'overlay-efm', name: 'Evanston Farmers Market', address: 'Evanston, IL', location_type: 'farmers_market' },
+  { id: 'overlay-wo', name: 'Wild Onion Market', address: 'Rogers Park — 7007 N Clark St', location_type: 'pickup' },
+  { id: 'overlay-web', name: 'Website', location_type: 'online', link: 'https://www.elmolcajetesauces.com' },
 ]
 
 export const EL_MOLCAJETE_STORY =
@@ -31,6 +31,7 @@ export function overlayProducerCopy(farm) {
     location: present(farm.location) ? farm.location : 'Evanston, IL',
     city: present(farm.city) ? farm.city : 'Evanston',
     state: present(farm.state) ? farm.state : 'IL',
+    producer_type: present(farm.producer_type) ? farm.producer_type : 'Sauces',
     bio: present(farm.bio) ? farm.bio : EL_MOLCAJETE_CARD_BIO,
     story: present(farm.story) ? farm.story : EL_MOLCAJETE_STORY,
   }
