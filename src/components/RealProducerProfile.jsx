@@ -6,24 +6,12 @@ import { formatScheduleLine, formatShortDate, isScheduledToday, DAY_ABBR, nextOc
 import FollowButton from '@/components/FollowButton'
 import ProfileShareMenu from '@/components/ProfileShareMenu'
 import WholesaleInquirySheet from '@/components/WholesaleInquirySheet'
-import { displayLocation, overlayProducerCopy, isElMolcajete, EL_MOLCAJETE_FIND_US } from '@/lib/producerCopy'
+import { overlayProducerCopy, isElMolcajete, EL_MOLCAJETE_FIND_US } from '@/lib/producerCopy'
+import ProducerField, { producerPlaceLine } from '@/components/ProducerField'
 
 function SectionHeading({ children }) {
   return (
     <h2 className="font-serif text-[22px] sm:text-[26px] font-semibold text-soil mb-5">{children}</h2>
-  )
-}
-
-function ShopField({ name }) {
-  return (
-    <div className="w-full h-full bg-[#E8DFD0] flex items-center justify-center rounded-2xl">
-      <svg width="48" height="48" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-        <path d="M8 16 V28 H28 V16" stroke="#6B6355" strokeWidth="1.4"/>
-        <path d="M6 16 L18 8 L30 16" stroke="#6B6355" strokeWidth="1.4" strokeLinejoin="round"/>
-        <rect x="15" y="20" width="6" height="8" stroke="#6B6355" strokeWidth="1.4"/>
-      </svg>
-      <span className="sr-only">{name}</span>
-    </div>
   )
 }
 
@@ -56,8 +44,7 @@ export default function RealProducerProfile({
     setTodayLocationIds(new Set(ids))
   }, [farm.locations])
 
-  const locationLine = farm.neighborhood || displayLocation(farm)
-  const typeLocation = [locationLine, farm.producer_type].filter(Boolean).join(' · ')
+  const typeLocation = producerPlaceLine(farm)
   const hasPickup = Boolean(farm.practices?.pickup_available || locations.some(l => l.location_type === 'pickup' || l.location_type === 'farm_stand'))
   const pickupLine = pickupDetailLine(farm, locations)
   const hasFindUs = locations.length > 0 || farm.website || farm.instagram
@@ -86,7 +73,7 @@ export default function RealProducerProfile({
           {farm.cover_photo_url ? (
             <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${farm.cover_photo_url})` }} />
           ) : (
-            <ShopField name={farm.name} />
+            <ProducerField farm={farm} className="rounded-2xl" />
           )}
         </div>
 
