@@ -13,10 +13,12 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
   const supabase = createClient()
-  const [{ data: { user } }, area] = await Promise.all([
+  const [{ data: { user } }, area, { count: openSourcingCount }] = await Promise.all([
     supabase.auth.getUser(),
     resolveArea(),
+    supabase.from('sourcing_requests').select('id', { count: 'exact', head: true }).eq('status', 'open'),
   ])
+  const hasSourcing = Boolean(openSourcingCount)
   let profile = null
   let feedbackContext = null
   if (user) {
@@ -40,7 +42,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <Nav user={user ? { email: user.email, ...profile } : null} area={area} />
+        <Nav user={user ? { email: user.email, ...profile } : null} area={area} hasSourcing={hasSourcing} />
         <main>{children}</main>
         <SiteFooter />
         {user && <FeedbackButton context={feedbackContext} />}
