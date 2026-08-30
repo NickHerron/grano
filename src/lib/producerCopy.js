@@ -4,6 +4,13 @@
 export const EL_MOLCAJETE_CARD_BIO =
   'Oaxacan moles and salsas, cooked small-batch in Evanston by chef Ernesto Rodriguez. Traditional recipes, no preservatives, vegan and gluten-free.'
 
+
+export const EL_MOLCAJETE_FIND_US = [
+  { id: 'overlay-efm', name: 'Evanston Farmers Market', address: 'Evanston, IL', location_type: 'farmers_market' },
+  { id: 'overlay-wo', name: 'Wild Onion Market', address: 'Rogers Park — 7007 N Clark St', location_type: 'pickup' },
+  { id: 'overlay-web', name: 'Website', location_type: 'online', link: 'https://www.elmolcajetesauces.com' },
+]
+
 export const EL_MOLCAJETE_STORY =
   'Ernesto Rodriguez never meant to start a sauce company. He was a chef preserving his mother’s mole, ran out of freezer space, and learned to can it. He named the business after the volcanic-stone molcajete used to grind spices in Oaxaca. He started in San Francisco in 2017, then moved the family to Evanston after Covid, for the schools and the lake. Five moles, plus tomatillo, estofado, and a hot chili oil. Weekly salsas from whatever urban farms like Evanston Grows have that week. Small batches, plant-based, gluten-free, no preservatives. Find him at the Evanston Farmers Market, at co-ops like Wild Onion in Rogers Park, and on elmolcajetesauces.com. He also does cooking demos, classes, and farm-to-table dinners.'
 
@@ -24,6 +31,7 @@ export function overlayProducerCopy(farm) {
     location: present(farm.location) ? farm.location : 'Evanston, IL',
     city: present(farm.city) ? farm.city : 'Evanston',
     state: present(farm.state) ? farm.state : 'IL',
+    producer_type: present(farm.producer_type) ? farm.producer_type : 'Sauces',
     bio: present(farm.bio) ? farm.bio : EL_MOLCAJETE_CARD_BIO,
     story: present(farm.story) ? farm.story : EL_MOLCAJETE_STORY,
   }

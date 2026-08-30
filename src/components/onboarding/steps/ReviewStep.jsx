@@ -85,7 +85,10 @@ export default function ReviewStep({ farm, recommendations }) {
                 <div className="text-[14px] font-semibold text-sage">Published</div>
                 <div className="text-[12px] text-stone">Your profile is marked complete. You can keep editing anytime.</div>
               </div>
-              <Link href="/dashboard" className="text-[13px] font-semibold text-rust hover:underline whitespace-nowrap">Go to dashboard →</Link>
+              <div className="flex flex-col items-end gap-2">
+                <Link href="/share-profile" className="text-[13px] font-semibold text-rust hover:underline whitespace-nowrap">Share your profile →</Link>
+                <Link href="/dashboard" className="text-[13px] text-stone hover:underline whitespace-nowrap">Go to dashboard</Link>
+              </div>
             </div>
 
             {justPublished && (

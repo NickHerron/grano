@@ -1,5 +1,6 @@
 import './globals.css'
 import Nav from '@/components/Nav'
+import SiteFooter from '@/components/SiteFooter'
 import FeedbackButton from '@/components/feedback/FeedbackButton'
 import { createClient } from '@/lib/supabase/server'
 import { computeRoles } from '@/lib/accountRoles'
@@ -41,6 +42,7 @@ export default async function RootLayout({ children }) {
       <body>
         <Nav user={user ? { email: user.email, ...profile } : null} area={area} />
         <main>{children}</main>
+        <SiteFooter />
         {user && <FeedbackButton context={feedbackContext} />}
       </body>
     </html>
