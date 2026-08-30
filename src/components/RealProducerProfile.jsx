@@ -11,7 +11,7 @@ import ProducerField, { producerPlaceLine } from '@/components/ProducerField'
 
 function SectionHeading({ children }) {
   return (
-    <h2 className="font-serif text-[22px] sm:text-[26px] font-semibold text-soil mb-5">{children}</h2>
+    <h2 className="font-serif text-[22px] sm:text-[26px] font-medium text-ink mb-5">{children}</h2>
   )
 }
 
@@ -63,23 +63,23 @@ export default function RealProducerProfile({
   })
 
   return (
-    <div className="bg-linen min-h-screen pb-16">
+    <div className="bg-paper min-h-screen pb-16">
       <div className="max-w-[1000px] mx-auto px-4 sm:px-8 pt-5 sm:pt-8">
-        <Link href="/producers" className="inline-flex items-center gap-1 text-[13px] font-semibold text-rust hover:underline mb-5">
+        <Link href="/producers" className="inline-flex items-center gap-1 text-[15px] font-semibold text-brick hover:underline mb-5">
           ← All Chicago producers
         </Link>
 
-        <div className="h-[200px] sm:h-[320px] relative overflow-hidden rounded-2xl bg-[#E8DFD0]">
+        <div className="h-[200px] sm:h-[320px] relative overflow-hidden rounded-panel bg-[#E8DFD0]">
           {farm.cover_photo_url ? (
             <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${farm.cover_photo_url})` }} />
           ) : (
-            <ProducerField farm={farm} className="rounded-2xl" showLabel />
+            <ProducerField farm={farm} className="rounded-panel" showLabel />
           )}
         </div>
 
         <div className="pt-6 sm:pt-8 pb-4">
           {typeLocation && <div className="text-[13px] text-stone mb-1">{typeLocation}</div>}
-          <h1 className="font-serif text-[28px] sm:text-[40px] font-semibold text-soil tracking-tight leading-tight">{farm.name}</h1>
+          <h1 className="font-serif text-[28px] sm:text-[40px] font-medium text-ink tracking-tight leading-tight">{farm.name}</h1>
           {farm.bio && (
             <p className="text-[15px] leading-relaxed text-stone mt-3 max-w-[720px]">{farm.bio}</p>
           )}
@@ -87,7 +87,7 @@ export default function RealProducerProfile({
           {hasFindUs && (
             <div className="mt-6">
               <a href="#find-us"
-                className="inline-block bg-rust text-white text-[14px] font-semibold px-6 py-3 rounded-full hover:bg-[#A8521F] transition-colors">
+                className="inline-block bg-forest text-paper text-[15px] font-semibold px-6 py-3 rounded-btn hover:bg-forest-hover transition-colors">
                 {isElMolcajete(farm) ? 'Find us' : 'Find us this week'}
               </a>
               {!isElMolcajete(farm) && pickupLine && <div className="text-[13px] text-stone mt-2">{pickupLine}</div>}
@@ -101,11 +101,11 @@ export default function RealProducerProfile({
         {listedProducts.length > 0 && (
           <section>
             <SectionHeading>Products</SectionHeading>
-            <ul className="divide-y divide-[#ECEAE4] border-t border-b border-[#ECEAE4]">
+            <ul className="divide-y divide-[rgba(44,33,24,0.12)] border-t border-b border-hair">
               {listedProducts.map(p => (
                 <li key={p.id} className="flex items-baseline justify-between gap-4 py-3">
                   <span className="text-[15px] text-soil">{p.name}</span>
-                  <span className="text-[13px] text-rust whitespace-nowrap">Ask at pickup</span>
+                  <span className="text-[13px] text-brick whitespace-nowrap">Ask at pickup</span>
                 </li>
               ))}
             </ul>
@@ -118,7 +118,7 @@ export default function RealProducerProfile({
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {availableFor.map(item => (
                 <li key={item} className="flex items-center gap-2 text-[15px] text-soil">
-                  <span className="text-sage">✓</span> {item}
+                  <span className="w-5 h-5 rounded-full bg-sage-wash text-forest text-[12px] flex items-center justify-center">✓</span> {item}
                 </li>
               ))}
             </ul>
@@ -137,13 +137,13 @@ export default function RealProducerProfile({
         {locations.length > 0 && (
           <section id="find-us" className="scroll-mt-20">
             <SectionHeading>{isElMolcajete(farm) ? 'Find us' : 'Where to find us'}</SectionHeading>
-            <ul className="divide-y divide-[#ECEAE4] border-t border-b border-[#ECEAE4]">
+            <ul className="divide-y divide-[rgba(44,33,24,0.12)] border-t border-b border-hair">
               {locations.map(loc => (
                 <li key={loc.id || loc.name} className="py-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="font-serif text-[17px] font-semibold text-soil">{loc.name}</div>
                     {todayLocationIds.has(loc.id) && (
-                      <span className="text-[10px] font-semibold uppercase tracking-wide text-white bg-sage px-2 py-0.5 rounded">Today</span>
+                      <span className="text-[10px] font-semibold uppercase tracking-wide text-forest bg-sage-wash px-2 py-0.5 rounded">Today</span>
                     )}
                   </div>
                   {loc.address && <div className="text-[13px] text-stone mt-0.5">{loc.address}</div>}
@@ -161,7 +161,7 @@ export default function RealProducerProfile({
                     <div className="text-[12px] text-stone mt-0.5">{[loc.seasonal_start, loc.seasonal_end].filter(Boolean).join(' – ')}</div>
                   )}
                   {loc.link && (
-                    <a href={loc.link} target="_blank" rel="noopener noreferrer" className="text-[13px] font-semibold text-rust hover:underline">
+                    <a href={loc.link} target="_blank" rel="noopener noreferrer" className="text-[15px] font-semibold text-brick hover:underline">
                       {loc.link.replace(/^https?:\/\//, '')}
                     </a>
                   )}
@@ -180,8 +180,8 @@ export default function RealProducerProfile({
             <SectionHeading>Upcoming events</SectionHeading>
             <div className="flex flex-col gap-3">
               {upcoming.map(loc => (
-                <div key={loc.id || loc.name} className="bg-white border border-[#ECEAE4] rounded-xl p-4">
-                  <span className="text-[10px] font-semibold tracking-wide uppercase text-stone bg-linen px-2 py-0.5 rounded-full">
+                <div key={loc.id || loc.name} className="bg-card border border-hair rounded-panel p-4">
+                  <span className="text-[10px] font-semibold tracking-wide uppercase text-stone bg-paper px-2 py-0.5 rounded-btn">
                     {LOCATION_TYPES.find(([k]) => k === loc.location_type)?.[1] || loc.location_type}
                   </span>
                   <div className="font-serif text-[17px] font-semibold text-soil mt-2">{loc.name}</div>
@@ -198,17 +198,17 @@ export default function RealProducerProfile({
           <FollowButton
             farmId={farm.id}
             initialFollowing={isFollowing}
-            className="text-[13px] text-stone hover:text-soil"
+            className="text-[13px] text-stone hover:text-brick"
             followingClassName="text-[13px] text-sage"
           />
           <ProfileShareMenu name={farm.name} slug={farm.slug} />
           {farm.instagram && (
-            <a href={`https://instagram.com/${farm.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-soil">
+            <a href={`https://instagram.com/${farm.instagram.replace('@', '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-brick">
               Instagram
             </a>
           )}
           {farm.website && (
-            <a href={farm.website} target="_blank" rel="noopener noreferrer" className="hover:text-soil">
+            <a href={farm.website} target="_blank" rel="noopener noreferrer" className="hover:text-brick">
               Website
             </a>
           )}

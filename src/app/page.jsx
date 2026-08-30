@@ -76,15 +76,15 @@ export default async function HomePage() {
       <HomeHero />
 
       {thisWeek.length > 0 && (
-        <section className="bg-linen border-b border-[#ECEAE4]">
+        <section className="bg-paper border-b border-hair">
           <div className="max-w-[1100px] mx-auto px-4 sm:px-8 py-10">
-            <h2 className="font-serif text-[24px] sm:text-[28px] font-semibold text-soil mb-5">This week</h2>
+            <h2 className="font-serif text-[24px] sm:text-[28px] font-medium text-ink mb-5">This week</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {thisWeek.map(item => (
                 <Link key={item.id} href={`/producers/${item.slug}`}
-                  className="flex items-start justify-between gap-4 bg-white border border-[#ECEAE4] rounded-xl px-5 py-4 hover:border-wheat transition-colors">
+                  className="flex items-start justify-between gap-4 bg-card border border-hair rounded-panel px-5 py-4 hover:border-wheat transition-colors">
                   <div>
-                    <div className="font-serif text-[17px] font-semibold text-soil">{item.name}</div>
+                    <div className="font-serif text-[17px] font-medium text-ink">{item.name}</div>
                     <div className="text-[13px] text-stone mt-0.5">{item.place}</div>
                   </div>
                   <div className="text-[12px] text-stone whitespace-nowrap">{item.when}</div>
@@ -95,17 +95,17 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section id="producers" className="bg-linen scroll-mt-20">
+      <section id="producers" className="bg-paper scroll-mt-20">
         <div className="max-w-[1100px] mx-auto px-4 sm:px-8 py-12 sm:py-16">
-          <h2 className="font-serif text-[28px] sm:text-[34px] font-semibold text-soil mb-8">Chicago producers</h2>
+          <h2 className="font-serif text-[28px] sm:text-[34px] font-medium text-ink mb-8">Chicago producers</h2>
           {producers.length ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {producers.map(f => <ProducerCard key={f.slug} farm={f} />)}
             </div>
           ) : (
-            <div className="bg-white border border-[#ECEAE4] rounded-xl py-16 text-center">
+            <div className="bg-card border border-hair rounded-panel py-16 text-center">
               <p className="text-[14px] text-stone mb-3">No producers listed yet.</p>
-              <Link href="/signup?as=producer" className="text-[13px] font-semibold text-rust hover:underline">Be the first →</Link>
+              <Link href="/signup?as=producer" className="text-[13px] font-semibold text-brick hover:underline">Be the first →</Link>
             </div>
           )}
         </div>

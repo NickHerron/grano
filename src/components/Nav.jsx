@@ -19,31 +19,31 @@ export default function Nav({ user, area = null }) {
   const cityLabel = area?.city || 'Chicago'
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-[#ECEAE4]">
+    <nav className="sticky top-0 z-50 bg-paper border-b border-hair">
       <div className="px-4 sm:px-8 flex items-center gap-4 h-[60px] max-w-[1100px] mx-auto">
         <Link href="/" className="font-serif text-[24px] md:text-[26px] font-semibold tracking-tight text-soil whitespace-nowrap">
-          grano<span className="text-rust">.</span>
+          grano<span className="text-brick">.</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-5 ml-auto text-[13px]">
           <span className="text-stone">{cityLabel}</span>
           <Link
             href="/producers"
-            className={path === '/producers' || path.startsWith('/producers/') ? 'text-soil font-medium' : 'text-stone hover:text-soil'}
+            className={path === '/producers' || path.startsWith('/producers/') ? 'text-ink font-medium' : 'text-stone hover:text-brick'}
           >
             Producers
           </Link>
           {user ? (
             <>
-              <Link href="/dashboard" className="text-stone hover:text-soil">
+              <Link href="/dashboard" className="text-stone hover:text-brick">
                 {user.full_name?.split(' ')[0] || 'Dashboard'}
               </Link>
-              <button onClick={handleSignOut} className="text-stone hover:text-soil">
+              <button onClick={handleSignOut} className="text-stone hover:text-brick">
                 Sign out
               </button>
             </>
           ) : (
-            <Link href="/login" className="text-stone hover:text-soil">
+            <Link href="/login" className="text-stone hover:text-brick">
               Sign in
             </Link>
           )}
@@ -62,7 +62,7 @@ export default function Nav({ user, area = null }) {
           <button
             onClick={() => setMenuOpen(o => !o)}
             aria-label="Menu"
-            className="w-9 h-9 flex items-center justify-center rounded-md hover:bg-[#F7F5F1]"
+            className="w-9 h-9 flex items-center justify-center rounded-md hover:bg-card"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               {menuOpen ? (
@@ -76,7 +76,7 @@ export default function Nav({ user, area = null }) {
       </div>
 
       {menuOpen && (
-        <div className="md:hidden border-t border-[#ECEAE4] bg-white px-4 py-4 flex flex-col gap-3">
+        <div className="md:hidden border-t border-hair bg-paper px-4 py-4 flex flex-col gap-3">
           <span className="text-[13px] text-stone px-3">{cityLabel}</span>
           <Link href="/producers" onClick={() => setMenuOpen(false)} className="text-[14px] text-soil px-3 py-2">
             Producers

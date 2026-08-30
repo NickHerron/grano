@@ -1,36 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --soil: #1E1509;
-  --wheat: #C8943A;
+  --soil: #2C2118;
+  --wheat: #C4A35A;
   --sage: #4A7A51;
   --rust: #C0622E;
-  --stone: #6B6355;
-  --linen: #F7F5F1;
-  --mist: #F0EDE7;
-  --green-light: #EBF3EC;
+  --stone: #7A6554;
+  --linen: #F3EEE4;
+  --mist: #FAF6EF;
+  --green-light: #E4EDE6;
   --orange-light: #FDF0E8;
   --yellow-light: #FBF5E6;
+  --paper: #F3EEE4;
+  --card: #FAF6EF;
+  --ink: #2C2118;
+  --brick: #A44A2C;
+  --forest: #1E3A2F;
+  --forest-hover: #2A4F41;
+  --gold: #C4A35A;
+  --espresso: #231A10;
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { background: #FAFAF8; color: var(--soil); font-family: 'DM Sans', sans-serif; }
+body { background: var(--paper); color: var(--ink); font-family: 'Source Sans 3', sans-serif; font-size: 17px; line-height: 1.55; }
 
-.font-serif { font-family: 'Cormorant Garamond', serif; }
+.font-serif { font-family: Fraunces, 'Iowan Old Style', Palatino, Georgia, serif; font-optical-sizing: auto; }
 .font-mono  { font-family: 'DM Mono', monospace; }
 
-/* Banner scroll animation */
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
 @keyframes bannerScroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
 .animate-banner { animation: bannerScroll 30s linear infinite; }
 
-/* Pulse for live dot */
 @keyframes livePulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: .5; transform: scale(.8); }
