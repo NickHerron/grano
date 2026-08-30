@@ -30,7 +30,7 @@ export default function SiteFooter() {
           <p className="text-[15px] text-stone mb-6 max-w-[480px] mx-auto">
             Create a free profile. No subscription. No need to sell on Grano or post.
           </p>
-          <Link href="/signup?as=producer" className="inline-block bg-transparent text-forest text-[15px] font-semibold px-6 py-3 rounded-btn border border-forest hover:bg-sage-wash transition-colors">
+          <Link href="/signup?as=producer" className="inline-block bg-transparent text-ink text-[15px] font-semibold px-6 py-3 rounded-btn border border-ink hover:bg-card transition-colors">
             Create free profile
           </Link>
         </div>

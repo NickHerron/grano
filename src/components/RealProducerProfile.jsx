@@ -78,8 +78,8 @@ export default function RealProducerProfile({
         </div>
 
         <div className="pt-6 sm:pt-8 pb-4">
-          {typeLocation && <div className="text-[13px] text-stone mb-1">{typeLocation}</div>}
           <h1 className="font-serif text-[28px] sm:text-[40px] font-medium text-ink tracking-tight leading-tight">{farm.name}</h1>
+          {typeLocation && <div className="text-[13px] text-stone mt-1">{typeLocation}</div>}
           {farm.bio && (
             <p className="text-[15px] leading-relaxed text-stone mt-3 max-w-[720px]">{farm.bio}</p>
           )}

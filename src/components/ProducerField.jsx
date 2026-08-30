@@ -69,7 +69,7 @@ export default function ProducerField({ farm, className = '', showLabel = false 
   const field = producerField(farm)
   return (
     <div className={`w-full h-full flex flex-col items-center justify-center gap-2 ${className}`} style={{ background: field.bg, color: field.ink }}>
-      <Mark icon={field.icon} ink={field.ink} />
+      <Mark icon={field.icon} ink="#C4A35A" />
       {showLabel && field.label && (
         <div className="font-serif text-[22px] sm:text-[28px] font-medium" style={{ color: field.ink }}>{field.label}</div>
       )}

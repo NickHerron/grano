@@ -17,8 +17,8 @@ export default function ShareProfileClient({ name, slug, neighborhood }) {
 
   const sms = `sms:?&body=${encodeURIComponent(`${text} ${url}`)}`
   const fb = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
-  const ghost = 'text-center text-[15px] font-semibold text-soil border border-hair px-4 py-2.5 rounded-btn hover:text-ink'
-  const outline = 'text-center text-[15px] font-semibold text-forest border border-forest px-4 py-2.5 rounded-btn hover:bg-sage-wash'
+  const ghost = 'text-center text-[15px] font-semibold text-stone border border-hair px-4 py-2.5 rounded-btn hover:text-ink'
+  const outline = 'text-center text-[15px] font-semibold text-ink border border-ink px-4 py-2.5 rounded-btn hover:bg-paper'
 
   return (
     <div className="max-w-[560px] mx-auto px-4 py-16 sm:py-24">

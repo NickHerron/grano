@@ -101,8 +101,9 @@ export default function WholesaleInquirySheet({ farm, user, viewerBusinesses = [
                       key={label}
                       type="button"
                       onClick={() => setFreq(value)}
-                      className={`text-[13px] px-3.5 py-1.5 rounded-btn border ${freq === value ? 'bg-sage-wash border-forest text-forest' : 'bg-card border-hair text-soil'}`}
+                      className={`inline-flex items-center text-[13px] px-3.5 py-1.5 rounded-btn border ${freq === value ? 'bg-sage-wash border-forest text-forest' : 'bg-card border-hair text-soil'}`}
                     >
+                      <span className={`inline-block w-2 h-2 rounded-full mr-1.5 align-middle ${freq === value ? 'bg-forest' : 'border border-hair bg-transparent'}`} />
                       {label}
                     </button>
                   ))}
