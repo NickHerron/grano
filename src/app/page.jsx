@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import HomeHero from '@/components/HomeHero'
+import NewOnGrano from '@/components/NewOnGrano'
+import ForRestaurants from '@/components/ForRestaurants'
 import ProducerCard from '@/components/ProducerCard'
 import { overlayProducerCopy } from '@/lib/producerCopy'
 import { hydrateSourcingRequestOwners } from '@/lib/sourcingOptions'
@@ -81,6 +83,8 @@ export default async function HomePage() {
     <>
       <HomeHero coverUrl={heroCover} />
 
+      <NewOnGrano producers={producers.slice(0, 6)} />
+
       {thisWeek.length > 0 && (
         <section className="bg-paper border-b border-hair">
           <div className="max-w-[1100px] mx-auto px-4 sm:px-8 py-10">
@@ -130,6 +134,8 @@ export default async function HomePage() {
           )}
         </div>
       </section>
+
+      <ForRestaurants hasSourcing={sourcingRequests.length > 0} />
     </>
   )
 }
