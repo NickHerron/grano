@@ -71,9 +71,11 @@ export default async function HomePage() {
     }
   }).filter(Boolean).sort((a, b) => a.sort - b.sort).slice(0, 6)
 
+  const heroCover = producers.find(p => (p.slug || '').startsWith('24-karat-bakery'))?.coverPhotoUrl
+
   return (
     <>
-      <HomeHero />
+      <HomeHero coverUrl={heroCover} />
 
       {thisWeek.length > 0 && (
         <section className="bg-paper border-b border-hair">
