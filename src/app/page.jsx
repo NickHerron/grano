@@ -3,6 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import HomeHero from '@/components/HomeHero'
 import ProducerCard from '@/components/ProducerCard'
 import { overlayProducerCopy } from '@/lib/producerCopy'
+import { hydrateSourcingRequestOwners } from '@/lib/sourcingOptions'
+import SourcingRequestCard from '@/components/SourcingRequestCard'
 import { DAY_ABBR, formatShortDate, localDateStr, nextOccurrence } from '@/lib/schedule'
 
 function mapProducer(f, { pickupFarmIds }) {
@@ -40,10 +42,12 @@ function thisWeekLine(loc) {
 
 export default async function HomePage() {
   const supabase = createClient()
-  const [{ data: realFarms }, { data: farmLocationRows }] = await Promise.all([
+  const [{ data: realFarms }, { data: farmLocationRows }, { data: rawSourcing }] = await Promise.all([
     supabase.from('farms').select('*').order('created_at', { ascending: false }),
     supabase.from('farm_locations').select('*'),
+    supabase.from('sourcing_requests').select('*').eq('status', 'open').order('created_at', { ascending: false }),
   ])
+  const sourcingRequests = await hydrateSourcingRequestOwners(supabase, rawSourcing || [])
 
   const pickupFarmIds = new Set(
     (farmLocationRows || [])
@@ -90,6 +94,20 @@ export default async function HomePage() {
                   <div className="text-[12px] text-stone whitespace-nowrap">{item.when}</div>
                 </Link>
               ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {sourcingRequests.length > 0 && (
+        <section className="bg-paper border-b border-hair">
+          <div className="max-w-[1100px] mx-auto px-4 sm:px-8 py-10">
+            <h2 className="font-serif text-[24px] sm:text-[28px] font-medium text-ink mb-2">Looking for</h2>
+            <p className="text-[15px] text-stone mb-5 max-w-[640px]">
+              Open requests from Chicago kitchens. If you can supply it, reach out and compare price.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {sourcingRequests.map(r => <SourcingRequestCard key={r.id} r={r} />)}
             </div>
           </div>
         </section>

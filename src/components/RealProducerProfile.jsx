@@ -1,11 +1,13 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { LOCATION_TYPES } from '@/lib/producerOptions'
 import { formatScheduleLine, formatShortDate, isScheduledToday, DAY_ABBR, nextOccurrence } from '@/lib/schedule'
 import FollowButton from '@/components/FollowButton'
 import ProfileShareMenu from '@/components/ProfileShareMenu'
 import WholesaleInquirySheet from '@/components/WholesaleInquirySheet'
+import WorkWithUsPanel from '@/components/WorkWithUsPanel'
+import SourcingRequestCard from '@/components/SourcingRequestCard'
 import { overlayProducerCopy, isElMolcajete, EL_MOLCAJETE_FIND_US } from '@/lib/producerCopy'
 import ProducerField, { producerPlaceLine } from '@/components/ProducerField'
 
@@ -32,6 +34,7 @@ function pickupDetailLine(farm, locations) {
 
 export default function RealProducerProfile({
   farm: farmProp, products, isFollowing, workOptions = [], user = null, viewerBusinesses = [],
+  sourcingRequests = [],
 }) {
   const farm = overlayProducerCopy(farmProp)
   const dbLocations = farm.locations || []
@@ -173,6 +176,39 @@ export default function RealProducerProfile({
 
         {sellsWholesale && (
           <WholesaleInquirySheet farm={farm} user={user} viewerBusinesses={viewerBusinesses} />
+        )}
+
+        {sourcingRequests.length > 0 && (
+          <section>
+            <SectionHeading>Looking to buy</SectionHeading>
+            <p className="text-[15px] text-stone mb-5 max-w-[720px]">
+              If you can supply this, reach out and compare price. Not an order.
+            </p>
+            <div className="flex flex-col gap-3">
+              {sourcingRequests.map(r => (
+                <SourcingRequestCard
+                  key={r.id}
+                  showOwner={false}
+                  r={{ ...r, owner: { type: 'farm', slug: farm.slug, name: farm.name } }}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {sourcingRequests.length > 0 && (
+          <Suspense fallback={null}>
+            <WorkWithUsPanel
+              businessType="farm"
+              businessId={farm.id}
+              businessSlug={farm.slug}
+              businessName={farm.name}
+              options={[{ key: 'sourcing', enabled: true, headline: 'I can supply this. Let’s compare price.', instructions: null }]}
+              heading="Compare price"
+              user={user}
+              viewerBusinesses={viewerBusinesses}
+            />
+          </Suspense>
         )}
 
         {upcoming.length > 0 && (

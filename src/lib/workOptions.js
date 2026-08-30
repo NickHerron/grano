@@ -151,7 +151,9 @@ export function resolveWorkOptions(allowedKeys, defaultKeys, rows) {
     const override = overrides.get(key)
     return {
       key,
-      enabled: override ? override.enabled : defaultKeys.has(key),
+      // An open sourcing request is a public B2B want-ad. Don't let a work-option
+      // override hide the path for a supplier to compare price.
+      enabled: (key === 'sourcing' && defaultKeys.has('sourcing')) ? true : (override ? override.enabled : defaultKeys.has(key)),
       headline: override?.headline || null,
       instructions: override?.instructions || null,
     }

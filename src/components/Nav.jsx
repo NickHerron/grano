@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-export default function Nav({ user, area = null }) {
+export default function Nav({ user, area = null, hasSourcing = false }) {
   const path = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -33,6 +33,14 @@ export default function Nav({ user, area = null }) {
           >
             Producers
           </Link>
+          {hasSourcing && (
+            <Link
+              href="/sourcing-requests"
+              className={path === '/sourcing-requests' || path.startsWith('/sourcing-requests') ? 'text-ink font-medium' : 'text-stone hover:text-brick'}
+            >
+              Sourcing
+            </Link>
+          )}
           {user ? (
             <>
               <Link href="/dashboard" className="text-stone hover:text-brick">
@@ -81,6 +89,11 @@ export default function Nav({ user, area = null }) {
           <Link href="/producers" onClick={() => setMenuOpen(false)} className="text-[14px] text-soil px-3 py-2">
             Producers
           </Link>
+          {hasSourcing && (
+            <Link href="/sourcing-requests" onClick={() => setMenuOpen(false)} className="text-[14px] text-soil px-3 py-2">
+              Sourcing
+            </Link>
+          )}
           {user ? (
             <>
               <Link href="/dashboard" onClick={() => setMenuOpen(false)} className="text-[14px] text-soil px-3 py-2">
