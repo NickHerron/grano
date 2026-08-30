@@ -21,7 +21,7 @@ export default function SiteFooter() {
   }
 
   return (
-    <footer className="bg-paper border-t border-hair">
+    <footer className="bg-paper">
       {!quiet && (
         <div className="max-w-[720px] mx-auto px-4 sm:px-8 py-14 sm:py-16 text-center">
           <p className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-gold mb-3">

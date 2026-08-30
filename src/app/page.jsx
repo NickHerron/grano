@@ -86,7 +86,7 @@ export default async function HomePage() {
       <NewOnGrano producers={producers.slice(0, 6)} />
 
       {thisWeek.length > 0 && (
-        <section className="bg-paper border-b border-hair">
+        <section className="bg-paper">
           <div className="max-w-[1100px] mx-auto px-4 sm:px-8 py-10">
             <h2 className="font-serif text-[24px] sm:text-[28px] font-medium text-ink mb-5">This week</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -106,7 +106,7 @@ export default async function HomePage() {
       )}
 
       {sourcingRequests.length > 0 && (
-        <section className="bg-paper border-b border-hair">
+        <section className="bg-card">
           <div className="max-w-[1100px] mx-auto px-4 sm:px-8 py-10">
             <h2 className="font-serif text-[24px] sm:text-[28px] font-medium text-ink mb-2">Looking for</h2>
             <p className="text-[15px] text-stone mb-5 max-w-[640px]">

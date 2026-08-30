@@ -4,7 +4,7 @@ export default function NewOnGrano({ producers }) {
   if (!producers?.length) return null
 
   return (
-    <section className="bg-paper border-b border-hair">
+    <section className="bg-card">
       <div className="max-w-[1100px] mx-auto px-4 sm:px-8 py-12 sm:py-16">
         <p className="font-sans text-[11px] font-semibold tracking-[0.18em] uppercase text-gold mb-3">
           New on Grano
