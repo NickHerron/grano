@@ -1,4 +1,4 @@
-# Grano — Chicago's Digital Farmers Market
+# Grano — Chicago's Digital Food Network
 
 A farm-to-restaurant marketplace connecting Chicago restaurants directly with local producers.
 
